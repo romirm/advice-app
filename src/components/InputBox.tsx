@@ -1,26 +1,28 @@
-import { useState, useRef } from "react"
+import { useState, useRef } from "react";
 
-const InputBox = () => {
-  const [message, setMessage] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const messageInputRef = useRef<HTMLTextAreaElement | null>(null)
+interface InputBoxProps {
+  onSend: (message: string) => void;
+}
 
-  const handleSend = () => {
-    if (!message.trim()) return
-    setIsLoading(true)
-    setTimeout(() => {
-      console.log("Sent:", message)
-      setMessage("")
-      setIsLoading(false)
-    }, 1000)
-  }
+const InputBox = ({ onSend }: InputBoxProps) => {
+  const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const messageInputRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const handleSend = async () => {
+    if (!message.trim()) return;
+    setIsLoading(true);
+    await onSend(message);
+    setMessage("");
+    setIsLoading(false);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
+      e.preventDefault();
+      handleSend();
     }
-  }
+  };
 
   return (
     <div className="relative w-[837px] h-[155px] bg-white shadow-lg border border-gray-300 rounded-xl p-4">
@@ -46,7 +48,7 @@ const InputBox = () => {
         </button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default InputBox
+export default InputBox;
