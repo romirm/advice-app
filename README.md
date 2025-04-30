@@ -8,8 +8,6 @@ A simple web app that uses Google's Gemini API to generate advice from Logical, 
 * [![Firebase][Firebase]][Firebase-url]
 * [![Gemini][Gemini]][Gemini-url]
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
 <!-- Badge References -->
 
 <!-- Vite -->
