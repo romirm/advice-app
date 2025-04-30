@@ -2,15 +2,33 @@ import { genAI } from "./GeminiConfig.ts";
 
 export async function getAdvice(problem: string): Promise<Record<string, string>> {
   const prompt = `
-Given the following problem: "${problem}",
-generate advice from these perspectives:
-- Logical
-- Empathetic
-- Strategic
-
-Return the response in pure JSON format, without any explanation or formatting.
-`;
-
+  Given the following problem: "${problem}",
+  
+  Generate advice from each of the following perspectives:
+  - Logical
+  - Empathetic
+  - Strategic
+  
+  Return your response as **pure JSON** in the exact format below.
+  Do not include any markdown, code fences, or additional explanation.
+  
+  {
+    "perspectives": [
+      {
+        "name": "Logical",
+        "advice": "..."
+      },
+      {
+        "name": "Empathetic",
+        "advice": "..."
+      },
+      {
+        "name": "Strategic",
+        "advice": "..."
+      }
+    ]
+  }
+  `;
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
