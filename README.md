@@ -1,11 +1,32 @@
 # Aptly ✨  
 A simple web app that uses Google's Gemini API to generate advice from Logical, Empathetic, and Strategic perspectives.
 
-## 🚀 Tech Stack
-- ⚛️ React (with Vite)
-- 📘 TypeScript
-- 🔥 Firebase Hosting
-- 🤖 Gemini (Google AI)
+## 🚧 Built With
+
+* [![Vite][Vite]][Vite-url]
+* [![React][React.js]][React-url]
+* [![Firebase][Firebase]][Firebase-url]
+* [![Gemini][Gemini]][Gemini-url]
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+<!-- Badge References -->
+
+<!-- Vite -->
+[Vite]: https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white
+[Vite-url]: https://vitejs.dev/
+
+<!-- React -->
+[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
+[React-url]: https://reactjs.org/
+
+<!-- Firebase -->
+[Firebase]: https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=white
+[Firebase-url]: https://firebase.google.com/
+
+<!-- Gemini -->
+[Gemini]: https://img.shields.io/badge/Gemini%20API-4285F4?style=for-the-badge&logo=google&logoColor=white
+[Gemini-url]: https://ai.google.dev/
 
 ---
 
