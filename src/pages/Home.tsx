@@ -7,7 +7,7 @@ interface Perspective {
   advice: string;
 }
 
-interface AdviceResponse {
+export interface AdviceResponse {
   perspectives: Perspective[];
 }
 
@@ -16,7 +16,7 @@ const Home = () => {
 
   const handleSend = async (message: string) => {
     try {
-      const result = await getAdvice(message);
+      const result = await getAdvice(message); // Already the correct format
       setAdvice(result);
     } catch (error) {
       console.error("Error fetching advice:", error);
@@ -29,7 +29,7 @@ const Home = () => {
 
       <InputBox onSend={handleSend} />
 
-      {advice?.perspectives && advice.perspectives.length > 0 && (
+      {advice && advice.perspectives && advice.perspectives.length > 0 && (
         <div className="mt-6 p-4 rounded-xl shadow-inner w-[837px]">
           <h2 className="text-xl font-bold mb-2">Advice:</h2>
           {advice.perspectives.map((perspectiveObj) => (

@@ -1,6 +1,7 @@
 import { genAI } from "./GeminiConfig.ts";
+import type { AdviceResponse } from "../pages/Home.tsx";
 
-export async function getAdvice(problem: string): Promise<Record<string, string>> {
+export async function getAdvice(problem: string): Promise<AdviceResponse> {
   const prompt = `
   Given the following problem: "${problem}",
   
