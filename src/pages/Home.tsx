@@ -25,7 +25,7 @@ const Home = () => {
 
   return (
     <div className="flex flex-col items-center justify-center gap-8">
-      <h1 className="text-3xl font-bold">Welcome to the Advice App</h1>
+      <h1 className="text-3xl font-bold">Welcome to Aptly!</h1>
 
       <InputBox onSend={handleSend} />
 
