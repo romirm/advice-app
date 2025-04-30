@@ -1,54 +1,105 @@
-# React + TypeScript + Vite
+# Aptly ✨  
+A simple web app that uses Google's Gemini API to generate advice from Logical, Empathetic, and Strategic perspectives.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 🚀 Tech Stack
+- ⚛️ React (with Vite)
+- 📘 TypeScript
+- 🔥 Firebase Hosting
+- 🤖 Gemini (Google AI)
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🛠️ Setup Instructions
 
-## Expanding the ESLint configuration
+### 1. Clone the repo
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+git clone https://github.com/your-username/aptly.git
+cd aptly
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Install dependencies
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```bash
+npm install
 ```
+
+### 3. Set up environment variables
+
+Create a `.env` file at the root of your project and add any required keys (e.g. Gemini API credentials, if applicable).
+
+```env
+# Example
+VITE_GEMINI_API_KEY=your-key-here
+```
+
+### 4. Run locally
+
+```bash
+npm run dev
+```
+
+The app will be available at `http://localhost:5173`.
+
+---
+
+## 🌐 Deployment
+
+This project uses **Firebase Hosting**.
+
+### Build for production:
+
+```bash
+npm run build
+```
+
+### Deploy:
+
+```bash
+firebase deploy
+```
+
+Make sure `dist/` is your public directory and that Firebase is configured for single-page apps.
+
+---
+
+## 📁 Project Structure
+
+```txt
+src/
+  ├── components/      # Reusable UI elements
+  ├── pages/           # Main page components like Home.tsx
+  ├── gemini/          # Gemini API config and utility functions
+  └── main.tsx         # App entry point
+```
+
+---
+
+## 📸 Features
+- Ask any question or scenario
+- Get advice from multiple perspectives
+- Clean and responsive UI
+- Built for extensibility
+
+---
+
+## 👥 Participants
+- Clement Kubica  
+- Romir Mohan  
+- Wenxin Zhang  
+- Yicong Li
+
+---
+
+## 📄 License
+MIT License — free to use and modify.
+
+---
+
+## 🤝 Contributions
+Feel free to fork the repo and submit PRs!
+
+---
+
+## 🔗 Live Demo
+[https://advice-app-701cd.web.app/](https://advice-app-701cd.web.app/)
