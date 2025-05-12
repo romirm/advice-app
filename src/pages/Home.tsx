@@ -16,28 +16,44 @@ const Home = () => {
 
   const handleSend = async (message: string) => {
     try {
-      const result = await getAdvice(message); // Already the correct format
-      setAdvice(result);
+      const result = await getAdvice(message);
+      if (result?.perspectives && Array.isArray(result.perspectives)) {
+        setAdvice(result);
+      } else {
+        console.warn("No valid perspectives returned.");
+        setAdvice(null);
+      }
     } catch (error) {
       console.error("Error fetching advice:", error);
     }
   };
 
+  const renderAdviceCards = () => {
+    if (!advice?.perspectives || advice.perspectives.length === 0) return null;
+
+    return advice.perspectives.map((p) => (
+      <div
+        key={p.name}
+        className="bg-zinc-900 border border-zinc-700 rounded-xl p-4 shadow hover:shadow-lg transition"
+      >
+        <h3 className="text-indigo-400 text-lg font-medium capitalize mb-1">{p.name}</h3>
+        <p className="text-zinc-200 leading-relaxed">{p.advice}</p>
+      </div>
+    ));
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center gap-8">
-      <h1 className="text-3xl font-bold">Welcome to Aptly!</h1>
+    <div className="min-h-screen bg-zinc-950 text-white px-4 py-12 flex flex-col items-center gap-10">
+      <h1 className="text-4xl font-bold tracking-tight">Welcome to <span className="text-indigo-400">Aptly</span></h1>
+      <p className="text-zinc-400 text-lg text-center max-w-2xl">
+      </p>
 
       <InputBox onSend={handleSend} />
 
-      {advice && advice.perspectives && advice.perspectives.length > 0 && (
-        <div className="mt-6 p-4 rounded-xl shadow-inner w-[837px]">
-          <h2 className="text-xl font-bold mb-2">Advice:</h2>
-          {advice.perspectives.map((perspectiveObj) => (
-            <div key={perspectiveObj.name} className="mb-4">
-              <h3 className="font-semibold capitalize">{perspectiveObj.name}</h3>
-              <p>{perspectiveObj.advice}</p>
-            </div>
-          ))}
+      {advice?.perspectives?.length > 0 && (
+        <div className="w-full max-w-3xl mt-4 space-y-4">
+          <h2 className="text-2xl font-semibold mb-2 border-b border-zinc-700 pb-2">Advice Perspectives</h2>
+          {renderAdviceCards()}
         </div>
       )}
     </div>
