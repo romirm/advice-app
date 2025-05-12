@@ -25,31 +25,26 @@ const InputBox = ({ onSend }: InputBoxProps) => {
   };
 
   return (
-    <div className="w-full max-w-3xl bg-zinc-900 border border-zinc-700 rounded-2xl p-4 shadow-lg">
+    <div className="relative w-[837px] h-[155px] bg-white shadow-lg border border-gray-300 rounded-xl p-4">
       <textarea
-        placeholder="Ask for advice..."
+        placeholder="Type a message..."
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         onKeyDown={handleKeyDown}
         ref={messageInputRef}
-        rows={4}
-        className="w-full text-base bg-transparent text-white placeholder-zinc-400 resize-none outline-none"
+        className="w-full h-full text-lg text-black bg-transparent outline-none resize-none z-10 relative"
       />
-      <div className="flex justify-end mt-2">
+      <div className="absolute right-4 top-4 z-20">
         <button
+          className={`w-8 h-10 flex items-center justify-center text-lg font-semibold rounded-full transition  
+            ${isLoading
+              ? "bg-gray-300 cursor-not-allowed"
+              : "bg-gray-900 hover:bg-gray-700 cursor-pointer"
+            }`}
           onClick={handleSend}
           disabled={isLoading}
-          className={`flex items-center justify-center w-10 h-10 rounded-full transition 
-            ${isLoading
-              ? "bg-zinc-600 cursor-not-allowed text-white"
-              : "bg-indigo-500 hover:bg-indigo-400 text-white"
-            }`}
         >
-          {isLoading ? (
-            <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-          ) : (
-            "↑"
-          )}
+          {isLoading ? "..." : "↑"}
         </button>
       </div>
     </div>
