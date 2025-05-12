@@ -37,8 +37,10 @@ function AppContent() {
   // Handle saving query history
   const handleQuerySave = async (
     question: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     perspectives: any[],
     selectedPerspective: string | null = null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     conversation: any[] = []
   ) => {
     if (!user) return null;
@@ -62,6 +64,7 @@ function AppContent() {
   const handleUpdateConversation = async (
     queryId: string,
     selectedPerspective: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     conversation: any[]
   ) => {
     if (!user || !queryId) return;
@@ -111,13 +114,13 @@ function AppContent() {
         <div className="flex-1 flex justify-end">
           <button
             onClick={handleToggleHistory}
-            className="bg-blue-500 text-white py-2 px-4 rounded"
+            className="bg-[#3b82f6] hover:bg-[#2563eb] text-white py-2 px-4 rounded shadow transition-colors"
           >
             {showHistory ? 'Hide History' : 'View History'}
           </button>
+
         </div>
-      </div>
-      
+      </div>  
       {showHistory ? (
         <div className="mb-8">
           <QueryHistoryList onSelectQuery={handleSelectQuery} />
