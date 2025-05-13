@@ -48,56 +48,35 @@ const InputBox = ({ onSend }: InputBoxProps) => {
       onChange={(e) => setMessage(e.target.value)}
       onKeyDown={handleKeyDown}
       rows={1}
-      className="w-full h-full pr-12 resize-none overflow-hidden rounded-md bg-gray-100 dark:bg-neutral-800 text-gray-900 dark:text-neutral-100 placeholder-gray-500 dark:placeholder-gray-400 px-4 py-3 text-sm outline-none"
+      className="w-full h-full pr-12 resize-none overflow-hidden rounded-md bg-gray-100 dark:bg-neutral-800 text-gray-900 dark:text-neutral-100 placeholder-gray-500 dark:placeholder-gray-400 px-4 py-3 text-lg outline-none"
     />
     <button
-      onClick={handleSend}
-      className="absolute bottom-6 right-6 p-0 w-10 h-10 rounded-full transition-colors"
+  onClick={handleSend}
+  className="absolute bottom-6 right-6 p-0 w-11 h-11 rounded-full flex items-center justify-center transition-colors duration-200 !bg-black dark:!bg-white hover:opacity-80"
+>
+  {isLoading ? (
+    <div className="flex space-x-1">
+      <span className="w-2 h-2 rounded-full animate-bounce !bg-white dark:!bg-black [animation-delay:0s]" />
+      <span className="w-2 h-2 rounded-full animate-bounce !bg-white dark:!bg-black [animation-delay:0.1s]" />
+      <span className="w-2 h-2 rounded-full animate-bounce !bg-white dark:!bg-black [animation-delay:0.2s]" />
+    </div>
+  ) : (
+    <svg
+      viewBox="0 0 24 24"
+      className="w-15 h-15"
+      xmlns="http://www.w3.org/2000/svg"
     >
-      <svg
-        viewBox="0 0 24 24"
-        className="w-10 h-10"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <circle
-          cx="12"
-          cy="12"
-          r="12"
-          className="fill-black dark:fill-white"
-        />
-        {isLoading ? (
-          <svg
-            className="absolute top-1.5 left-1.5 animate-spin h-7 w-7"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"
-            />
-          </svg>
-        ) : (
-          <path
-            d="M8 12h8m0 0l-4-4m4 4l-4 4"
-            stroke="white"
-            className="dark:stroke-black"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        )}
-      </svg>
-    </button>
+      <path
+        d="M8 12h8m0 0l-4-4m4 4l-4 4"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="!stroke-white dark:!stroke-black"
+      />
+    </svg>
+  )}
+</button>
+
   </div>
 </div>
   );

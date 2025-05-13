@@ -211,17 +211,25 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
         )}
 
         {mode === "multi" && advice?.perspectives?.length > 0 && (
-          <div className="mt-12 bg-transparent rounded-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+          <div className="mt-12 w-full">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4 text-left">
               Advice from Different Perspectives
             </h2>
-            <div className="divide-y divide-gray-200 dark:divide-gray-600">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {advice.perspectives.map((perspectiveObj) => (
-                <div key={perspectiveObj.name} className="py-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className={`text-lg font-semibold capitalize ${getPerspectiveColor(perspectiveObj.name)}`}>
+                <div
+                  key={perspectiveObj.name}
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700 flex flex-col justify-between"
+                >
+                  <div>
+                    <h3 className={`text-lg font-semibold capitalize mb-2 ${getPerspectiveColor(perspectiveObj.name)}`}>
                       {perspectiveObj.name}
                     </h3>
+                    <p className="text-gray-700 dark:text-gray-300 text-left">
+                      {perspectiveObj.advice}
+                    </p>
+                  </div>
+                  <div className="mt-4 text-right">
                     <button
                       className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900 hover:bg-indigo-200 dark:hover:bg-indigo-800 text-sm rounded border border-indigo-200 dark:border-indigo-800 text-indigo-800 dark:text-indigo-100 font-medium"
                       onClick={() => handleSelectPerspective(perspectiveObj)}
@@ -229,7 +237,6 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
                       Continue
                     </button>
                   </div>
-                  <p className="text-gray-700 dark:text-gray-300 text-left">{perspectiveObj.advice}</p>
                 </div>
               ))}
             </div>
