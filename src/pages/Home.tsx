@@ -15,9 +15,9 @@ export interface AdviceResponse {
 interface HomeProps {
   initialQuery?: QueryHistoryItem | null;
   onSaveQuery?: (
-    question: string, 
-    perspectives: Perspective[], 
-    selectedPerspective?: string | null, 
+    question: string,
+    perspectives: Perspective[],
+    selectedPerspective?: string | null,
     conversation?: Message[]
   ) => Promise<string | null>;
   onUpdateConversation?: (
@@ -35,18 +35,28 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
   const [isLoading, setIsLoading] = useState(false);
   const [userQuestion, setUserQuestion] = useState<string>("");
   const [queryId, setQueryId] = useState<string | null>(null);
+  const [displayedText, setDisplayedText] = useState<string>("");
 
-  // Load initial query if provided
+  useEffect(() => {
+    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const updateDarkModeClass = () => {
+      if (darkModeMediaQuery.matches) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    };
+    updateDarkModeClass();
+    darkModeMediaQuery.addEventListener('change', updateDarkModeClass);
+    return () => darkModeMediaQuery.removeEventListener('change', updateDarkModeClass);
+  }, []);
+
   useEffect(() => {
     if (initialQuery) {
       setUserQuestion(initialQuery.question);
-      
       if (initialQuery.perspectives) {
-        setAdvice({
-          perspectives: initialQuery.perspectives
-        });
+        setAdvice({ perspectives: initialQuery.perspectives });
       }
-      
       if (initialQuery.selectedPerspective && initialQuery.conversation?.length > 0) {
         setSelectedPerspective(initialQuery.selectedPerspective);
         setHistory(initialQuery.conversation);
@@ -56,15 +66,39 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
     }
   }, [initialQuery]);
 
-  // Multi-perspective advice mode
+  useEffect(() => {
+    const plainText = "Welcome to ";
+    const styledText = "Aptly!";
+    const fullText = plainText + styledText;
+    let i = 0;
+    let interval: NodeJS.Timeout;
+
+    // eslint-disable-next-line prefer-const
+    interval = setInterval(() => {
+      if (i <= plainText.length) {
+        setDisplayedText(fullText.slice(0, i));
+      } else if (i <= fullText.length) {
+        setDisplayedText(
+          <>
+            {plainText}
+            <span className="text-indigo-600">{fullText.slice(plainText.length, i)}</span>
+          </>
+        );
+      } else {
+        clearInterval(interval);
+      }
+      i++;
+    }, 80);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const handleSend = async (message: string) => {
     setUserQuestion(message);
     setIsLoading(true);
     try {
       const result = await getAdvice(message);
       setAdvice(result);
-      
-      // Save to history if enabled
       if (onSaveQuery) {
         const newQueryId = await onSaveQuery(message, result.perspectives);
         setQueryId(newQueryId || null);
@@ -76,171 +110,139 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
     }
   };
 
-  // Single perspective deep conversation mode
   const handleSingleSend = async (message: string) => {
     if (!selectedPerspective) return;
     setIsLoading(true);
-    
     const newHistory = [...history, { role: "user" as const, content: message }];
     setHistory(newHistory);
-    
     try {
       const aiText = await getContinuedAdvice(selectedPerspective, newHistory, message);
       const updatedHistory = [...newHistory, { role: "ai" as const, content: aiText }];
       setHistory(updatedHistory);
-      
-      // Update conversation in history if enabled
       if (onUpdateConversation && queryId) {
-        await onUpdateConversation(
-          queryId,
-          selectedPerspective,
-          updatedHistory
-        );
+        await onUpdateConversation(queryId, selectedPerspective, updatedHistory);
       }
-    } catch (err) {
+    } catch {
       setHistory([...newHistory, { role: "ai" as const, content: "(Request failed)" }]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle selecting a perspective for deep conversation
   const handleSelectPerspective = async (perspective: Perspective) => {
     setMode("single");
     setSelectedPerspective(perspective.name);
-    
     const initialHistory = [
       { role: "user" as const, content: userQuestion },
       { role: "ai" as const, content: perspective.advice },
     ];
-    
     setHistory(initialHistory);
-    
-    // Update history with selected perspective if enabled
     if (onSaveQuery && queryId) {
-      await onUpdateConversation?.(
-        queryId,
-        perspective.name,
-        initialHistory
-      );
+      await onUpdateConversation?.(queryId, perspective.name, initialHistory);
     } else if (onSaveQuery && advice) {
-      // Create new entry with selected perspective
-      const newQueryId = await onSaveQuery(
-        userQuestion, 
-        advice.perspectives,
-        perspective.name,
-        initialHistory
-      );
+      const newQueryId = await onSaveQuery(userQuestion, advice.perspectives, perspective.name, initialHistory);
       setQueryId(newQueryId || null);
     }
   };
 
-  // Return to multi-perspective mode
   const handleBack = () => {
     setMode("multi");
     setSelectedPerspective(null);
     setHistory([]);
   };
 
-  // Get perspective color
   const getPerspectiveColor = (name: string) => {
     switch (name) {
-      case "Logical":
-        return "text-blue-600";
-      case "Empathetic":
-        return "text-red-600";
-      case "Strategic":
-        return "text-green-600";
-      default:
-        return "text-gray-600";
+      case "Logical": return "text-blue-600";
+      case "Empathetic": return "text-red-600";
+      case "Strategic": return "text-green-600";
+      default: return "text-gray-600";
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-8">
-      <h1 className="text-3xl font-bold">Welcome to Aptly!</h1>
+    <div className="flex flex-col items-center justify-start min-h-screen px-4 py-12 text-center bg-transparent text-gray-900 dark:text-white transition-colors">
+      <div className="w-full max-w-3xl">
+        <h1 className="text-4xl font-bold h-16">
+          {displayedText}
+        </h1>
+        <p className="text-gray-500 dark:text-gray-400 mt-2 text-lg">
+          Discover advice from multiple perspectives.
+        </p>
 
-      {/* Input area */}
-      {mode === "multi" && (
-        <div className="w-[837px]">
-          <InputBox onSend={handleSend} />
-          {isLoading && (
-            <div className="mt-4 text-center text-gray-500">
-              <div>Generating advice...</div>
-            </div>
-          )}
-        </div>
-      )}
+        {mode === "multi" && (
+          <div className="mt-8">
+            <InputBox onSend={handleSend} />
+            {isLoading && <div className="mt-4 text-center text-gray-500 dark:text-gray-400">Generating advice...</div>}
+          </div>
+        )}
 
-      {/* Single perspective conversation mode */}
-      {mode === "single" && (
-        <div className="w-[837px]">
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center">
-              <span className={`font-semibold text-lg ${getPerspectiveColor(selectedPerspective || '')}`}>
+        {mode === "single" && (
+          <div className="mt-8">
+            <div className="flex justify-between items-center mb-4">
+              <span className={`font-semibold text-xl ${getPerspectiveColor(selectedPerspective || '')}`}>
                 {selectedPerspective} Perspective
               </span>
+              <button
+                className="px-3 py-1 text-sm bg-transparent hover:bg-gray-200 dark:hover:bg-gray-600 rounded border border-gray-300 dark:border-gray-500"
+                onClick={handleBack}
+              >
+                Back to All Perspectives
+              </button>
             </div>
-            <button className="px-3 py-1 bg-gray-200 rounded" onClick={handleBack}>
-              Back to All Perspectives
-            </button>
-          </div>
-          
-          {/* Conversation history */}
-          <div className="bg-gray-50 rounded p-4 mb-4 min-h-[200px] max-h-[400px] overflow-y-auto">
-            {history.map((msg, idx) => (
-              <div 
-                key={idx} 
-                className={`p-2 ${
-                  msg.role === "user" 
-                    ? "text-right" 
-                    : "text-left"
-                }`}
-              >
-                <div className="font-medium">{msg.role === "user" ? "You" : selectedPerspective}</div>
-                <div>{msg.content}</div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="p-2 text-left">
-                <div className="font-medium">{selectedPerspective}</div>
-                <div>...</div>
-              </div>
-            )}
-          </div>
-          
-          {/* Input box */}
-          <InputBox onSend={handleSingleSend} />
-        </div>
-      )}
 
-      {/* Multi-perspective advice display */}
-      {mode === "multi" && advice && advice.perspectives && advice.perspectives.length > 0 && (
-        <div className="mt-2 p-5 w-[837px] border">
-          <h2 className="text-xl font-bold mb-4">Advice from Different Perspectives:</h2>
-          <div>
-            {advice.perspectives.map((perspectiveObj) => (
-              <div 
-                key={perspectiveObj.name} 
-                className="p-4 mb-4 border-b"
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className={`font-semibold text-lg capitalize ${getPerspectiveColor(perspectiveObj.name)}`}>
-                    {perspectiveObj.name}
-                  </h3>
-                  <button
-                    className="px-3 py-1 bg-blue-500 text-black font-medium rounded"
-                    onClick={() => handleSelectPerspective(perspectiveObj)}
-                  >
-                    Continue
-                  </button>
+            <div className="bg-transparent rounded p-4 mb-4 min-h-[200px] max-h-[400px] overflow-y-auto text-left">
+              {history.map((msg, idx) => (
+                <div key={idx} className={`p-2 ${msg.role === "user" ? "text-right" : "text-left"}`}>
+                  <div className="font-medium text-gray-700 dark:text-gray-300">{msg.role === "user" ? "You" : selectedPerspective}</div>
+                  <div className="text-gray-800 dark:text-gray-100">{msg.content}</div>
                 </div>
-                <p>{perspectiveObj.advice}</p>
-              </div>
-            ))}
+              ))}
+              {isLoading && (
+                <div className="p-2 text-left text-gray-600 dark:text-gray-400">
+                  <div className="font-medium">{selectedPerspective}</div>
+                  <div>...</div>
+                </div>
+              )}
+            </div>
+
+            <InputBox onSend={handleSingleSend} />
           </div>
-        </div>
-      )}
+        )}
+
+        {mode === "multi" && advice?.perspectives?.length > 0 && (
+          <div className="mt-12 w-full">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4 text-left">
+              Advice from Different Perspectives
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {advice.perspectives.map((perspectiveObj) => (
+                <div
+                  key={perspectiveObj.name}
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700 flex flex-col justify-between"
+                >
+                  <div>
+                    <h3 className={`text-lg font-semibold capitalize mb-2 ${getPerspectiveColor(perspectiveObj.name)}`}>
+                      {perspectiveObj.name}
+                    </h3>
+                    <p className="text-gray-700 dark:text-gray-300 text-left">
+                      {perspectiveObj.advice}
+                    </p>
+                  </div>
+                  <div className="mt-4 text-right">
+                    <button
+                      className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900 hover:bg-indigo-200 dark:hover:bg-indigo-800 text-sm rounded border border-indigo-200 dark:border-indigo-800 text-indigo-800 dark:text-indigo-100 font-medium"
+                      onClick={() => handleSelectPerspective(perspectiveObj)}
+                    >
+                      Continue
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
