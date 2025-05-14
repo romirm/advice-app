@@ -35,7 +35,8 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
   const [isLoading, setIsLoading] = useState(false);
   const [userQuestion, setUserQuestion] = useState<string>("");
   const [queryId, setQueryId] = useState<string | null>(null);
-  const [displayedText, setDisplayedText] = useState<string>("");
+  const [displayedTitle, setDisplayedTitle] = useState<JSX.Element | string>("");
+  const [displayedSubtitle, setDisplayedSubtitle] = useState<string>("");
 
   useEffect(() => {
     const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -67,41 +68,53 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
   }, [initialQuery]);
 
   useEffect(() => {
-  const plainText = "Welcome to ";
-  const styledText = "Aptly!";
-  const colors = ["text-red-500", "text-orange-500", "text-yellow-500", "text-green-500", "text-blue-500", "text-purple-500"]; // 6 letters including "!"
-  
-  let i = 0;
-  let interval: NodeJS.Timeout;
+    const plainText = "Welcome to ";
+    const styledText = "Aptly!";
+    const colors = ["text-red-500", "text-orange-500", "text-yellow-500", "text-green-500", "text-blue-500", "text-purple-500"];
+    
+    let i = 0;
+    let interval: NodeJS.Timeout;
 
-  interval = setInterval(() => {
-    if (i <= plainText.length) {
-      setDisplayedText(plainText.slice(0, i));
-    } else if (i <= plainText.length + styledText.length) {
-      const index = i - plainText.length;
-      const visibleStyled = styledText.slice(0, index);
+    interval = setInterval(() => {
+      if (i <= plainText.length) {
+        setDisplayedTitle(plainText.slice(0, i));
+      } else if (i <= plainText.length + styledText.length) {
+        const index = i - plainText.length;
+        const visibleStyled = styledText.slice(0, index);
+        const coloredLetters = visibleStyled.split("").map((char, idx) => (
+          <span key={idx} className={colors[idx % colors.length]}>
+            {char}
+          </span>
+        ));
 
-      const coloredLetters = visibleStyled.split("").map((char, idx) => (
-        <span key={idx} className={colors[idx % colors.length]}>
-          {char}
-        </span>
-      ));
+        setDisplayedTitle(
+          <>
+            {plainText}
+            {coloredLetters}
+          </>
+        );
+      } else {
+        clearInterval(interval);
+        animateSubtitle(); // Start subtitle after title
+      }
+      i++;
+    }, 80);
 
-      setDisplayedText(
-        <>
-          {plainText}
-          {coloredLetters}
-        </>
-      );
-    } else {
-      clearInterval(interval);
-    }
-    i++;
-  }, 80);
+    return () => clearInterval(interval);
+  }, []);
 
-  return () => clearInterval(interval);
-}, []);
+  const animateSubtitle = () => {
+    const subtitleText = "Discover advice from multiple perspectives.";
+    let j = 0;
 
+    const subtitleInterval = setInterval(() => {
+      setDisplayedSubtitle(subtitleText.slice(0, j));
+      if (j >= subtitleText.length) {
+        clearInterval(subtitleInterval);
+      }
+      j++;
+    }, 30);
+  };
 
   const handleSend = async (message: string) => {
     setUserQuestion(message);
@@ -174,10 +187,10 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
     <div className="flex flex-col items-center justify-start min-h-screen px-4 py-12 text-center bg-transparent text-gray-900 dark:text-white transition-colors">
       <div className="w-full max-w-3xl">
         <h1 className="text-4xl font-bold h-16">
-          {displayedText}
+          {displayedTitle}
         </h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-2 text-lg">
-          Discover advice from multiple perspectives.
+        <p className="text-gray-500 dark:text-gray-400 mt-2 text-lg h-6">
+          {displayedSubtitle}
         </p>
 
         {mode === "multi" && (
