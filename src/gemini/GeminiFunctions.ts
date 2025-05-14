@@ -89,7 +89,13 @@ export async function getContinuedAdvice(
   
   User's new message: ${message}
   
-  Respond from your ${perspective} perspective, maintaining the same tone and approach throughout.
+  Format your response in a clear, structured way with:
+  1. A brief introduction (1 sentence)
+  2. 2-3 key points in bullet points (using "-" symbol)
+  3. A brief conclusion or action step if appropriate (1 sentence)
+  
+  Keep your response concise and direct while maintaining your ${perspective} perspective.
+  Make sure your advice is practical and easy to understand.
   `;
 
   try {

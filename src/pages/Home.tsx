@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import InputBox from "../components/InputBox";
 import { getAdvice, getContinuedAdvice, Message } from "../gemini/GeminiFunctions";
 import { QueryHistoryItem } from "../utils/localQueryHistory";
@@ -35,7 +35,7 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
   const [isLoading, setIsLoading] = useState(false);
   const [userQuestion, setUserQuestion] = useState<string>("");
   const [queryId, setQueryId] = useState<string | null>(null);
-  const [displayedText, setDisplayedText] = useState<string>("");
+  const [displayedText, setDisplayedText] = useState<string | ReactNode>("");
 
   useEffect(() => {
     const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -195,7 +195,21 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
               {history.map((msg, idx) => (
                 <div key={idx} className={`p-2 ${msg.role === "user" ? "text-right" : "text-left"}`}>
                   <div className="font-medium text-gray-700 dark:text-gray-300">{msg.role === "user" ? "You" : selectedPerspective}</div>
-                  <div className="text-gray-800 dark:text-gray-100">{msg.content}</div>
+                  <div className="text-gray-800 dark:text-gray-100">
+                    {msg.role === "user" ? msg.content : (
+                      <div className="whitespace-pre-line">
+                        {msg.content.split("-").map((part, i) => {
+                          if (i === 0) return part;
+                          return (
+                            <div key={i} className="ml-2 mt-1 flex">
+                              <span className="mr-2">•</span>
+                              <span>{part}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
               {isLoading && (
@@ -210,12 +224,12 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
           </div>
         )}
 
-        {mode === "multi" && advice?.perspectives?.length > 0 && (
+        {mode === "multi" && advice?.perspectives && advice.perspectives.length > 0 && (
           <div className="mt-12 w-full">
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4 text-left">
               Advice from Different Perspectives
             </h2>
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {advice.perspectives.map((perspectiveObj) => (
                 <div
                   key={perspectiveObj.name}
