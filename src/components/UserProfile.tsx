@@ -1,20 +1,22 @@
 import { useState } from 'react';
-import { useAuth } from '../context/LocalAuthContext';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase/config';
 import DefaultAvatar from '../assets/default-avatar.svg';
+import { User } from 'firebase/auth';
 
 interface UserProfileProps {
+  user: User;
   onLogout: () => void;
 }
 
-const UserProfile = ({ onLogout }: UserProfileProps) => {
-  const { user, logout } = useAuth();
+const UserProfile = ({ user, onLogout }: UserProfileProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleLogout = async () => {
     setIsLoading(true);
     try {
-      logout();
+      await signOut(auth);
       onLogout();
     } catch (error) {
       setError('Failed to log out');
@@ -30,19 +32,18 @@ const UserProfile = ({ onLogout }: UserProfileProps) => {
         <div className="relative">
           <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
             {user?.photoURL ? (
-              <img 
-                src={user.photoURL} 
-                alt="Profile" 
+              <img
+                src={user.photoURL}
+                alt="Profile"
                 className="w-full h-full object-cover"
               />
             ) : (
-              <img 
-                src={DefaultAvatar} 
-                alt="Default Avatar" 
+              <img
+                src={DefaultAvatar}
+                alt="Default Avatar"
                 className="w-8 h-8 opacity-50"
               />
             )}
-            
             {isLoading && (
               <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
                 <svg className="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -53,12 +54,12 @@ const UserProfile = ({ onLogout }: UserProfileProps) => {
             )}
           </div>
         </div>
-        
+
         <div className="ml-4">
           <div className="font-bold text-lg">{user?.displayName || 'User'}</div>
           <div className="text-gray-600 text-sm">{user?.email}</div>
         </div>
-        
+
         <button
           onClick={handleLogout}
           className="ml-auto bg-gray-200 text-gray-800 py-1 px-3 rounded text-sm"
@@ -67,7 +68,7 @@ const UserProfile = ({ onLogout }: UserProfileProps) => {
           Logout
         </button>
       </div>
-      
+
       {error && (
         <div className="mt-2 text-red-500 text-sm">
           {error}
@@ -77,4 +78,4 @@ const UserProfile = ({ onLogout }: UserProfileProps) => {
   );
 };
 
-export default UserProfile; 
+export default UserProfile;

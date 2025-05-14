@@ -16,10 +16,10 @@ const QueryHistoryList = ({ onSelectQuery }: QueryHistoryListProps) => {
   useEffect(() => {
     const fetchQueries = async () => {
       if (!user) return;
-      
+
       setLoading(true);
       setError(null);
-      
+
       try {
         const history = getUserQueryHistory(user.uid);
         setQueries(history);
@@ -30,7 +30,7 @@ const QueryHistoryList = ({ onSelectQuery }: QueryHistoryListProps) => {
         setLoading(false);
       }
     };
-    
+
     fetchQueries();
   }, [user]);
 
@@ -72,10 +72,10 @@ const QueryHistoryList = ({ onSelectQuery }: QueryHistoryListProps) => {
   return (
     <div className="border rounded overflow-hidden">
       <h3 className="font-medium p-3 bg-gray-50 border-b">Your History</h3>
-      
+
       <div className="max-h-80 overflow-y-auto">
         {queries.map((query) => (
-          <div 
+          <div
             key={query.id}
             className="p-3 border-b last:border-b-0 hover:bg-gray-50 cursor-pointer"
             onClick={() => onSelectQuery(query)}

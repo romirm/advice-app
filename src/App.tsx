@@ -1,28 +1,40 @@
-import { useState } from 'react';
-import './App.css'
-import Home from "./pages/Home"
+import { useState, useEffect } from 'react';
+import './App.css';
+import Home from './pages/Home';
 import Login from './components/Login';
-import Register from './components/Register';
 import UserProfile from './components/UserProfile';
 import QueryHistoryList from './components/QueryHistoryList';
-import { AuthProvider, useAuth } from './context/LocalAuthContext';
-import { QueryHistoryItem } from './utils/localQueryHistory';
-import { saveQueryHistory, updateQueryConversation } from './utils/localQueryHistory';
+import { QueryHistoryItem, saveQueryHistory, updateQueryConversation } from './utils/localQueryHistory';
+import { onAuthStateChanged, User, signOut } from 'firebase/auth';
+import { auth } from './firebase/config';
 
 function AppContent() {
-  const { user, loading } = useAuth();
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [selectedQuery, setSelectedQuery] = useState<QueryHistoryItem | null>(null);
   const [showHistory, setShowHistory] = useState(false);
 
-  const handleLoginSuccess = () => {
-    // Reset states
-    setAuthMode('login');
-  };
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
-  const handleLogout = () => {
+  const handleLoginSuccess = () => {
     setSelectedQuery(null);
     setShowHistory(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+      handleLoginSuccess();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   const handleSelectQuery = (query: QueryHistoryItem) => {
@@ -34,7 +46,6 @@ function AppContent() {
     setShowHistory(prev => !prev);
   };
 
-  // Handle saving query history
   const handleQuerySave = async (
     question: string,
     perspectives: any[],
@@ -42,7 +53,7 @@ function AppContent() {
     conversation: any[] = []
   ) => {
     if (!user) return null;
-    
+
     try {
       const id = saveQueryHistory(
         user.uid,
@@ -58,14 +69,13 @@ function AppContent() {
     }
   };
 
-  // Handle updating conversation
   const handleUpdateConversation = async (
     queryId: string,
     selectedPerspective: string,
     conversation: any[]
   ) => {
     if (!user || !queryId) return;
-    
+
     try {
       updateQueryConversation(
         queryId,
@@ -88,17 +98,7 @@ function AppContent() {
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        {authMode === 'login' ? (
-          <Login 
-            onLogin={handleLoginSuccess} 
-            onSwitchToRegister={() => setAuthMode('register')} 
-          />
-        ) : (
-          <Register 
-            onRegister={handleLoginSuccess} 
-            onSwitchToLogin={() => setAuthMode('login')} 
-          />
-        )}
+        <Login onLogin={handleLoginSuccess} />
       </div>
     );
   }
@@ -106,8 +106,8 @@ function AppContent() {
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">
       <div className="flex items-start mb-8 gap-4">
-        <UserProfile onLogout={handleLogout} />
-        
+        <UserProfile user={user} onLogout={handleLogout} />
+
         <div className="flex-1 flex justify-end">
           <button
             onClick={handleToggleHistory}
@@ -117,7 +117,7 @@ function AppContent() {
           </button>
         </div>
       </div>
-      
+
       {showHistory ? (
         <div className="mb-8">
           <QueryHistoryList onSelectQuery={handleSelectQuery} />
@@ -138,9 +138,9 @@ function AppContent() {
           </div>
         </div>
       ) : null}
-      
-      <Home 
-        initialQuery={selectedQuery} 
+
+      <Home
+        initialQuery={selectedQuery}
         onSaveQuery={handleQuerySave}
         onUpdateConversation={handleUpdateConversation}
       />
@@ -149,11 +149,7 @@ function AppContent() {
 }
 
 function App() {
-  return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
-  )
+  return <AppContent />;
 }
 
-export default App
+export default App;
