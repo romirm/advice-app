@@ -67,31 +67,41 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
   }, [initialQuery]);
 
   useEffect(() => {
-    const plainText = "Welcome to ";
-    const styledText = "Aptly!";
-    const fullText = plainText + styledText;
-    let i = 0;
-    let interval: NodeJS.Timeout;
+  const plainText = "Welcome to ";
+  const styledText = "Aptly!";
+  const colors = ["text-red-500", "text-orange-500", "text-yellow-500", "text-green-500", "text-blue-500", "text-purple-500"]; // 6 letters including "!"
+  
+  let i = 0;
+  let interval: NodeJS.Timeout;
 
-    // eslint-disable-next-line prefer-const
-    interval = setInterval(() => {
-      if (i <= plainText.length) {
-        setDisplayedText(fullText.slice(0, i));
-      } else if (i <= fullText.length) {
-        setDisplayedText(
-          <>
-            {plainText}
-            <span className="text-indigo-600">{fullText.slice(plainText.length, i)}</span>
-          </>
-        );
-      } else {
-        clearInterval(interval);
-      }
-      i++;
-    }, 80);
+  interval = setInterval(() => {
+    if (i <= plainText.length) {
+      setDisplayedText(plainText.slice(0, i));
+    } else if (i <= plainText.length + styledText.length) {
+      const index = i - plainText.length;
+      const visibleStyled = styledText.slice(0, index);
 
-    return () => clearInterval(interval);
-  }, []);
+      const coloredLetters = visibleStyled.split("").map((char, idx) => (
+        <span key={idx} className={colors[idx % colors.length]}>
+          {char}
+        </span>
+      ));
+
+      setDisplayedText(
+        <>
+          {plainText}
+          {coloredLetters}
+        </>
+      );
+    } else {
+      clearInterval(interval);
+    }
+    i++;
+  }, 80);
+
+  return () => clearInterval(interval);
+}, []);
+
 
   const handleSend = async (message: string) => {
     setUserQuestion(message);
