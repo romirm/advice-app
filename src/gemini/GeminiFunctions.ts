@@ -3,31 +3,29 @@ import type { AdviceResponse } from "../pages/Home.tsx";
 
 export async function getAdvice(problem: string): Promise<AdviceResponse> {
   const prompt = `
-  Given the following problem: "${problem}",
-  
-  Generate advice from each of the following perspectives:
-  - Logical: Focus on facts, reason, and objective analysis. Identify patterns, inconsistencies, and cause-effect relationships.
-  - Empathetic: Focus on emotions, human relationships, and personal well-being. Consider how the situation affects feelings and connections.
-  - Strategic: Focus on long-term goals, planning, and optimal approaches. Consider different pathways to success and potential obstacles.
-  
+  Given the following situation: "${problem}",
+  Generate three distinct pieces of advice, each from a personalized and relevant perspective suited to the context. Keep each of them around 2-3 sentences and the same length, fairly high-level but still reflecting the unique advice from that perspective.
+  Your task is to first infer what roles or people would naturally have differing views on this situation 
+  (e.g., a close friend, a professional expert, a family member), exclude religious or spiritual viewpoints unless they are explicitly relevant based on the problem description.
+  and then generate advice that reflects their unique background, priorities, and relationship to the person experiencing the problem.
   Return your response as **pure JSON** in the exact format below.
   Do not include any markdown, code fences, or additional explanation.
   
   {
-    "perspectives": [
-      {
-        "name": "Logical",
-        "advice": "..."
-      },
-      {
-        "name": "Empathetic",
-        "advice": "..."
-      },
-      {
-        "name": "Strategic",
-        "advice": "..."
-      }
-    ]
+  "perspectives": [
+    {
+      "name": "<Perspective 1 Name> (<Role or Relationship>)",
+      "advice": "..."
+    },
+    {
+      "name": "<Perspective 2 Name> (<Role or Relationship>)",
+      "advice": "..."
+    },
+    {
+      "name": "<Perspective 3 Name> (<Role or Relationship>)",
+      "advice": "..."
+    }
+  ]
   }
   `;
   try {

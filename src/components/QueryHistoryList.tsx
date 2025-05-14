@@ -16,10 +16,10 @@ const QueryHistoryList = ({ onSelectQuery }: QueryHistoryListProps) => {
   useEffect(() => {
     const fetchQueries = async () => {
       if (!user) return;
-      
+
       setLoading(true);
       setError(null);
-      
+
       try {
         const history = getUserQueryHistory(user.uid);
         setQueries(history);
@@ -30,7 +30,7 @@ const QueryHistoryList = ({ onSelectQuery }: QueryHistoryListProps) => {
         setLoading(false);
       }
     };
-    
+
     fetchQueries();
   }, [user]);
 
@@ -72,19 +72,21 @@ const QueryHistoryList = ({ onSelectQuery }: QueryHistoryListProps) => {
   return (
     <div className="border rounded overflow-hidden">
       <h3 className="font-medium p-3 bg-gray-50 border-b">Your History</h3>
-      
+
       <div className="max-h-80 overflow-y-auto">
         {queries.map((query) => (
-          <div 
+          <div
             key={query.id}
-            className="p-3 border-b last:border-b-0 hover:bg-gray-50 cursor-pointer"
+            className="p-3 border-b last:border-b-0 hover:bg-gray-50 hover:opacity-80 cursor-pointer transition-opacity"
             onClick={() => onSelectQuery(query)}
           >
             <div className="font-medium truncate">{query.question}</div>
             <div className="text-sm text-gray-500 flex justify-between mt-1">
               <span>
                 {query.selectedPerspective ? (
-                  <span className="text-blue-600">{query.selectedPerspective} perspective</span>
+                  <span className="bg-blue-600 dark:bg-blue-500 text-white text-xs px-2 py-1 rounded-full shadow-sm">
+                    {query.selectedPerspective} perspective
+                  </span>
                 ) : (
                   <span>Multiple perspectives</span>
                 )}
