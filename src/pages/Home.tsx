@@ -215,7 +215,7 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4 text-left">
               Advice from Different Perspectives
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-3 gap-6">
               {advice.perspectives.map((perspectiveObj) => (
                 <div
                   key={perspectiveObj.name}

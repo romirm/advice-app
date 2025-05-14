@@ -4,7 +4,7 @@ import type { AdviceResponse } from "../pages/Home.tsx";
 export async function getAdvice(problem: string): Promise<AdviceResponse> {
   const prompt = `
   Given the following situation: "${problem}",
-  Generate three distinct pieces of advice, each from a personalized and relevant perspective suited to the context. 
+  Generate three distinct pieces of advice, each from a personalized and relevant perspective suited to the context. Keep each of them around 2-3 sentences and the same length, fairly high-level but still reflecting the unique advice from that perspective.
   Your task is to first infer what roles or people would naturally have differing views on this situation 
   (e.g., a close friend, a professional expert, a family member), exclude religious or spiritual viewpoints unless they are explicitly relevant based on the problem description.
   and then generate advice that reflects their unique background, priorities, and relationship to the person experiencing the problem.
