@@ -27,8 +27,8 @@ const UserProfile = ({ user, onLogout }: UserProfileProps) => {
   };
 
   return (
-    <div className="p-6 border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-md w-[360px]">
-      <div className="flex items-center gap-4">
+    <div className="p-6 border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#1e1e1e] rounded-xl shadow-md w-[500px]">
+      <div className="flex items-center gap-2">
         <div className="relative">
           <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
             {user?.photoURL ? (
