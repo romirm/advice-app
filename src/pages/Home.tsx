@@ -198,14 +198,17 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
                   <div className="text-gray-800 dark:text-gray-100">
                     {msg.role === "user" ? msg.content : (
                       <div className="whitespace-pre-line">
-                        {msg.content.split("-").map((part, i) => {
-                          if (i === 0) return part;
-                          return (
-                            <div key={i} className="ml-2 mt-1 flex">
-                              <span className="mr-2">•</span>
-                              <span>{part}</span>
-                            </div>
-                          );
+                        {msg.content.split('\n').map((line, i) => {
+                          if (line.startsWith('- ')) {
+                            return (
+                              <div key={i} className="ml-2 mt-1 flex">
+                                <span className="mr-2">•</span>
+                                <span>{line.substring(2)}</span>
+                              </div>
+                            );
+                          } else {
+                            return <div key={i}>{line}</div>;
+                          }
                         })}
                       </div>
                     )}

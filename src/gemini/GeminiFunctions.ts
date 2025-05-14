@@ -89,13 +89,22 @@ export async function getContinuedAdvice(
   
   User's new message: ${message}
   
-  Format your response in a clear, structured way with:
-  1. A brief introduction (1 sentence)
-  2. 2-3 key points in bullet points (using "-" symbol)
-  3. A brief conclusion or action step if appropriate (1 sentence)
+  Format your response in a clear, structured way with EXACTLY this format:
+  1. A brief introduction (1 sentence only)
+  2. 2-3 key points as bullet points, each starting with "- " (dash followed by space) on its own line
+  3. A brief conclusion or action step (1 sentence only)
   
+  Example format:
+  Brief introduction sentence.
+  
+  - First key point with specific advice.
+  - Second key point with specific advice.
+  - Third key point with specific advice.
+  
+  Brief conclusion or next step.
+  
+  IMPORTANT: Each bullet point MUST start with "- " on its own line. Do not use "*" or other bullet point styles.
   Keep your response concise and direct while maintaining your ${perspective} perspective.
-  Make sure your advice is practical and easy to understand.
   `;
 
   try {
