@@ -35,7 +35,7 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
   const [isLoading, setIsLoading] = useState(false);
   const [userQuestion, setUserQuestion] = useState<string>("");
   const [queryId, setQueryId] = useState<string | null>(null);
-  const [displayedText, setDisplayedText] = useState<string>("");
+  const [displayedText, setDisplayedText] = useState<React.ReactNode>("");
 
   useEffect(() => {
     const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -193,15 +193,30 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
 
             <div className="bg-transparent rounded p-4 mb-4 min-h-[200px] max-h-[400px] overflow-y-auto text-left">
               {history.map((msg, idx) => (
-                <div key={idx} className={`p-2 ${msg.role === "user" ? "text-right" : "text-left"}`}>
-                  <div className="font-medium text-gray-700 dark:text-gray-300">{msg.role === "user" ? "You" : selectedPerspective}</div>
-                  <div className="text-gray-800 dark:text-gray-100">{msg.content}</div>
+                <div 
+                  key={idx} 
+                  className={`mb-3 ${msg.role === "user" ? "text-right" : "text-left"}`}
+                >
+                  <div className={`inline-block max-w-[85%] ${
+                    msg.role === "user" 
+                      ? "bg-blue-100 dark:bg-blue-900 rounded-tl-xl rounded-bl-xl rounded-br-xl" 
+                      : "bg-gray-100 dark:bg-gray-800 rounded-tr-xl rounded-br-xl rounded-bl-xl border border-gray-200 dark:border-gray-700"
+                  } px-4 py-2`}>
+                    <div className={`font-medium text-sm ${msg.role === "user" ? "text-blue-800 dark:text-blue-300" : `${getPerspectiveColor(selectedPerspective || '')}`}`}>
+                      {msg.role === "user" ? "You" : selectedPerspective}
+                    </div>
+                    <div className="text-gray-800 dark:text-gray-100 whitespace-pre-wrap">
+                      {msg.content}
+                    </div>
+                  </div>
                 </div>
               ))}
               {isLoading && (
-                <div className="p-2 text-left text-gray-600 dark:text-gray-400">
-                  <div className="font-medium">{selectedPerspective}</div>
-                  <div>...</div>
+                <div className="p-2 text-left">
+                  <div className="inline-block bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <div className="font-medium text-sm">{selectedPerspective}</div>
+                    <div className="text-gray-600 dark:text-gray-400">Typing...</div>
+                  </div>
                 </div>
               )}
             </div>
@@ -210,7 +225,7 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
           </div>
         )}
 
-        {mode === "multi" && advice?.perspectives?.length > 0 && (
+        {mode === "multi" && advice?.perspectives && advice.perspectives.length > 0 && (
           <div className="mt-12 w-full">
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4 text-left">
               Advice from Different Perspectives

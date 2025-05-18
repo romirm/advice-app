@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getUserQueryHistory } from '../utils/localQueryHistory';
-import { useAuth } from '../context/LocalAuthContext';
+import { useAuth } from '../context/AuthContext';
 import { QueryHistoryItem } from '../utils/localQueryHistory';
 
 interface QueryHistoryListProps {
@@ -16,10 +16,8 @@ const QueryHistoryList = ({ onSelectQuery }: QueryHistoryListProps) => {
   useEffect(() => {
     const fetchQueries = async () => {
       if (!user) return;
-
       setLoading(true);
       setError(null);
-
       try {
         const history = getUserQueryHistory(user.uid);
         setQueries(history);
@@ -30,7 +28,6 @@ const QueryHistoryList = ({ onSelectQuery }: QueryHistoryListProps) => {
         setLoading(false);
       }
     };
-
     fetchQueries();
   }, [user]);
 
@@ -72,7 +69,6 @@ const QueryHistoryList = ({ onSelectQuery }: QueryHistoryListProps) => {
   return (
     <div className="border rounded overflow-hidden">
       <h3 className="font-medium p-3 bg-gray-50 border-b">Your History</h3>
-
       <div className="max-h-80 overflow-y-auto">
         {queries.map((query) => (
           <div

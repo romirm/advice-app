@@ -44,7 +44,7 @@ export const saveQueryHistory = (
   };
   
   // Add to history
-  history.unshift(newItem); // Add to beginning of array
+  history.unshift(newItem);
   
   // Limit to last 20 items
   if (history.length > 20) {
