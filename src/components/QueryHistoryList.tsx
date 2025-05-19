@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { getUserQueryHistory } from '../utils/localQueryHistory';
-import { useAuth } from '../context/LocalAuthContext';
 import { QueryHistoryItem } from '../utils/localQueryHistory';
 
 interface QueryHistoryListProps {
