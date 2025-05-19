@@ -1,9 +1,107 @@
 import { genAI } from "./GeminiConfig.ts";
 import type { AdviceResponse } from "../pages/Home.tsx";
 
-export async function getAdvice(problem: string): Promise<AdviceResponse> {
+export interface Message {
+  role: "user" | "ai";
+  content: string;
+}
+
+export interface InformationAssessment {
+  hasEnoughInfo: boolean;
+  followUpQuestions?: string[];
+  reasoning?: string;
+}
+
+
+export async function assessInformationNeeds(
+  question: string,
+  currentContext: Record<string, string> = {}
+): Promise<InformationAssessment> {
+  const contextString = Object.entries(currentContext)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join("\n");
+  
+  console.log("Current context being assessed:", currentContext);
+  console.log("Context entries count:", Object.keys(currentContext).length);
+
+  // Check if we've already asked enough questions (3 or more)
+  if (Object.keys(currentContext).length >= 3) {
+    console.log("INFO: Reached 3+ context entries, automatically proceeding to advice");
+    return {
+      hasEnoughInfo: true,
+      reasoning: "Sufficient information has been gathered to provide advice."
+    };
+  }
+
   const prompt = `
-  Given the following situation: "${problem}",
+  Given the following question: "${question}"
+  
+  Current context:
+  ${contextString || "No additional context provided yet."}
+  
+  Determine if there is enough information to provide meaningful advice on this question.
+  Consider what important contextual information is missing that would significantly improve the quality of advice.
+  
+  IMPORTANT: If you already have some basic information or the question is straightforward, lean towards saying there is enough info.
+  Only ask for more information if it's absolutely critical to providing relevant advice.
+  
+  Return your response as **pure JSON** in the exact format below:
+  
+  {
+    "hasEnoughInfo": false,
+    "followUpQuestions": [
+      "What is your age?",
+      "What are your career interests?",
+      "What is your financial situation?"
+    ],
+    "reasoning": "Explanation of why this information is needed to provide good advice"
+  }
+  
+  OR, if there's already enough information:
+  
+  {
+    "hasEnoughInfo": true,
+    "reasoning": "Explanation of why the current information is sufficient"
+  }
+  
+  Limit follow-up questions to 1-2 of the MOST important missing pieces of information.
+  Make sure the follow-up questions are specific and directly related to the user's situation.
+  `;
+
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let text = response.text().trim();
+
+    if (text.startsWith("```")) {
+      text = text.replace(/^```json/, "").replace(/^```/, "").replace(/```$/, "").trim();
+    }
+
+    const parsed = JSON.parse(text);
+    console.log("Information assessment result:", parsed);
+    return parsed;
+  } catch (error) {
+    console.error("Failed to assess information needs:", error);
+    // If there's an error, just return hasEnoughInfo: true to prevent being stuck
+    return {
+      hasEnoughInfo: true,
+      reasoning: "Error assessing information needs, proceeding with available information."
+    };
+  }
+}
+
+export async function getAdvice(problem: string, context: Record<string, string> = {}): Promise<AdviceResponse> {
+  const contextString = Object.entries(context)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join("\n");
+  
+  console.log("=== Getting Advice ===");
+  console.log("Problem:", problem);
+  console.log("contextString:", contextString);
+  const prompt = `
+  Given the following situation: "${problem}".
+  Additional context: ${contextString || "No additional context provided."}
   Generate three distinct pieces of advice, each from a personalized and relevant perspective suited to the context. Keep each of them around 2-3 sentences and the same length, fairly high-level but still reflecting the unique advice from that perspective.
   Your task is to first infer what roles or people would naturally have differing views on this situation 
   (e.g., a close friend, a professional expert, a family member), exclude religious or spiritual viewpoints unless they are explicitly relevant based on the problem description.
@@ -30,7 +128,7 @@ export async function getAdvice(problem: string): Promise<AdviceResponse> {
   `;
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
+    console.log("Sending prompt to Gemini...");
     const result = await model.generateContent(prompt);
     const response = await result.response;
     let text = response.text();
@@ -52,10 +150,7 @@ export async function getAdvice(problem: string): Promise<AdviceResponse> {
   }
 }
 
-export interface Message {
-  role: "user" | "ai";
-  content: string;
-}
+
 
 export async function getContinuedAdvice(
   perspective: string, 

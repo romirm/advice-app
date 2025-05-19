@@ -2,9 +2,10 @@ import { useState, useRef, useEffect } from "react";
 
 interface InputBoxProps {
   onSend: (message: string) => void;
+  placeholder?: string; // New prop for customizable placeholder
 }
 
-const InputBox = ({ onSend }: InputBoxProps) => {
+const InputBox = ({ onSend, placeholder = "Send a message..." }: InputBoxProps) => {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messageInputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -43,7 +44,7 @@ const InputBox = ({ onSend }: InputBoxProps) => {
   <div className="relative w-[837px] h-[155px] bg-white dark:bg-neutral-900 shadow-lg border border-gray-300 dark:border-neutral-700 rounded-xl p-4">
     <textarea
       ref={messageInputRef}
-      placeholder="Send a message..."
+      placeholder={placeholder}
       value={message}
       onChange={(e) => setMessage(e.target.value)}
       onKeyDown={handleKeyDown}
