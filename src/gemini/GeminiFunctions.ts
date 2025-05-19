@@ -24,12 +24,12 @@ export async function assessInformationNeeds(
   console.log("Current context being assessed:", currentContext);
   console.log("Context entries count:", Object.keys(currentContext).length);
 
-  // Check if we've already asked enough questions (3 or more)
-  if (Object.keys(currentContext).length >= 3) {
+  // Check if we've already asked enough questions (5 or more)
+  if (Object.keys(currentContext).length >= 5) {
     console.log("INFO: Reached 3+ context entries, automatically proceeding to advice");
     return {
       hasEnoughInfo: true,
-      reasoning: "Sufficient information has been gathered to provide advice."
+      reasoning: "Sufficient information has been gathered to provide advice. (reached 5+ context entries)"
     };
   }
 

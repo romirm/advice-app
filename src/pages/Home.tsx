@@ -137,11 +137,16 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
         setInfoAssessmentReasoning(assessment.reasoning || "");
         
         // Add the initial question to the gathering history
+        // Create separate bubbles for explanation and question
         const initialHistory = [
           { role: "user" as const, content: message },
           { 
             role: "ai" as const, 
-            content: `I'd like to understand your situation better to provide the most relevant advice. ${assessment.reasoning}\n\n${assessment.followUpQuestions?.[0] || ""}` 
+            content: `I'd like to understand your situation better to provide the most relevant advice. ${assessment.reasoning}` 
+          },
+          {
+            role: "ai" as const,
+            content: assessment.followUpQuestions?.[0] || "What additional information can you provide?"
           }
         ];
         
@@ -261,9 +266,16 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
           setCurrentQuestionIndex(0);
           setInfoAssessmentReasoning(finalAssessment.reasoning || "");
           
+          if (finalAssessment.reasoning) {
+            updatedHistory.push({
+              role: "ai" as const,
+              content: `I need a bit more information. ${finalAssessment.reasoning}`
+            });
+          }
+          
           updatedHistory.push({
             role: "ai" as const,
-            content: `Just one more question to provide better advice: ${limitedQuestions[0] || "Is there anything else important about your situation?"}`
+            content: limitedQuestions[0] || "Is there anything else important about your situation?"
           });
           
           setGatheringHistory(updatedHistory);
@@ -354,7 +366,11 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
       { role: "user" as const, content: userQuestion },
       { 
         role: "ai" as const, 
-        content: `I'd like to understand your situation better. ${infoAssessmentReasoning}\n\n${followUpQuestions[0] || ""}` 
+        content: `I'd like to understand your situation better. ${infoAssessmentReasoning}` 
+      },
+      {
+        role: "ai" as const,
+        content: followUpQuestions[0] || "What would you like to share about your situation?"
       }
     ]);
   };
@@ -426,7 +442,7 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
             {msg.role === "user" ? (
               <div>{msg.content}</div>
             ) : (
-              <div className="whitespace-pre-line">
+              <div className="whitespace-pre-line text-left">
                 {msg.content.split('\n').map((line, i) => {
                   if (line.startsWith('- ')) {
                     return (
