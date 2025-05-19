@@ -64,7 +64,7 @@ export async function assessInformationNeeds(
     "reasoning": "Explanation of why the current information is sufficient"
   }
   
-  Limit follow-up questions to 1-2 of the MOST important missing pieces of information.
+  Limit follow-up questions to 2-5 of the MOST important missing pieces of information.
   Make sure the follow-up questions are specific and directly related to the user's situation.
   `;
 
