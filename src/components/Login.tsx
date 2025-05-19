@@ -1,69 +1,134 @@
 import { useState } from 'react';
-import { signInWithPopup } from 'firebase/auth';
-import { auth, provider } from '../firebase/config';
+import { useAuth } from '../context/LocalAuthContext';
 
 interface LoginProps {
   onLogin: () => void;
+  onSwitchToRegister: () => void;
 }
 
-const Login = ({ onLogin }: LoginProps) => {
+const Login = ({ onLogin, onSwitchToRegister }: LoginProps) => {
+  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleGoogleLogin = async () => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     setError(null);
     setLoading(true);
-    try {
-      await signInWithPopup(auth, provider);
-      onLogin();
-    } catch (err) {
-      setError('Google sign-in failed.');
-      console.error(err);
-    } finally {
+
+    if (!email || !password) {
+      setError('Please fill in all fields');
       setLoading(false);
+      return;
+    }
+
+    const result = await login(email, password);
+    setLoading(false);
+
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
+
+    onLogin();
+  };
+
+  const createAdminUser = () => {
+    const usersStr = localStorage.getItem('users') || '[]';
+    let users = [];
+
+    try {
+      users = JSON.parse(usersStr);
+      if (users.length === 0) {
+        const adminUser = {
+          uid: 'admin_user',
+          email: 'admin',
+          password: '123',
+          displayName: 'Administrator',
+          photoURL: null,
+          createdAt: new Date().toISOString(),
+        };
+        users.push(adminUser);
+        localStorage.setItem('users', JSON.stringify(users));
+        console.log('Admin user created');
+      }
+    } catch (err) {
+      console.error('Failed to create admin user');
     }
   };
 
+  useState(() => {
+    createAdminUser();
+  });
+
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-white relative overflow-hidden">
-      <div className="bg-white/10 backdrop-blur-md border-black p-8 rounded-xl shadow-xl max-w-md w-full text-center text-white">
-        <h2 className="text-3xl text-black font-bold mb-6">Welcome to Aptly</h2>
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#202120] transition-colors">
+      <div className="w-full max-w-md bg-white dark:bg-[#202120] p-6 rounded border border-gray-300 dark:border-[#444654] text-black dark:text-white shadow-md">
+        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
 
         {error && (
-          <div className="bg-red-500/20 border border-red-500 text-red-200 px-4 py-2 rounded mb-4 text-sm">
+          <div className="bg-red-100 dark:bg-red-900 border border-red-400 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-4">
             {error}
           </div>
         )}
 
-        <button
-          onClick={handleGoogleLogin}
-          disabled={loading}
-          className="flex items-center justify-center w-full gap-3 bg-white text-black font-semibold py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition"
-        >
-          <svg
-            className="w-5 h-5"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 48 48"
+        <form onSubmit={handleEmailLogin} className="mb-4">
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-gray-700 dark:text-gray-300 font-medium mb-1">
+              Email/Username
+            </label>
+            <input
+              type="text"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-800 text-black dark:text-white"
+              disabled={loading}
+              required
+            />
+          </div>
+
+          <div className="mb-6">
+            <label htmlFor="password" className="block text-gray-700 dark:text-gray-300 font-medium mb-1">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-800 text-black dark:text-white"
+              disabled={loading}
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded font-medium transition"
+            disabled={loading}
           >
-            <path
-              fill="#fbc02d"
-              d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.2 35 24 35c-6.1 0-11.3-4.9-11.3-11S17.9 13 24 13c2.6 0 5 .9 6.9 2.4l5.9-5.9C32.5 6.3 28.5 5 24 5 12.4 5 3.4 14.1 3.4 25.7S12.4 46 24 46c11.5 0 20.9-9.3 20.9-20.9 0-1.4-.1-2.8-.3-4.1z"
-            />
-            <path
-              fill="#e53935"
-              d="M6.3 14.5l6.6 4.8C14.8 15 19.1 13 24 13c2.6 0 5 .9 6.9 2.4l5.9-5.9C32.5 6.3 28.5 5 24 5c-6.9 0-13 3.1-17.1 8z"
-            />
-            <path
-              fill="#4caf50"
-              d="M24 46c4.5 0 8.5-1.5 11.7-4l-5.4-4.4c-2.1 1.4-4.7 2.2-7.4 2.2-5.2 0-9.6-3.5-11.2-8.2l-6.6 5.1C10.6 41.8 16.8 46 24 46z"
-            />
-            <path
-              fill="#1565c0"
-              d="M43.6 20.5H42V20H24v8h11.3C34.8 32.4 30.3 35 25.1 35c-6.1 0-11.3-4.9-11.3-11S19 13 25.1 13c2.6 0 5 .9 6.9 2.4l5.9-5.9C34.5 6.3 30.5 5 26 5c-11.6 0-20.6 9.1-20.6 20.6S14.4 46 26 46c11.5 0 20.9-9.3 20.9-20.9 0-1.4-.1-2.8-.3-4.1z"
-            />
-          </svg>
-          {loading ? 'Signing in...' : 'Sign in with Google'}
-        </button>
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
+        </form>
+
+        <div className="mt-4 text-center">
+          <span className="text-gray-600 dark:text-gray-400">Don't have an account?</span>{' '}
+          <button
+            type="button"
+            onClick={onSwitchToRegister}
+            className="text-blue-500 dark:text-blue-400 underline"
+            disabled={loading}
+          >
+            Register
+          </button>
+        </div>
+
+        <div className="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
+          Default: admin / 123
+        </div>
       </div>
     </div>
   );
