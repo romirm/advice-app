@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { signInWithPopup } from 'firebase/auth';
-import { auth, provider } from '../firebase/config';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '../firebase/config';
 
 interface LoginProps {
   onLogin: () => void;
@@ -13,12 +14,35 @@ const Login = ({ onLogin }: LoginProps) => {
   const handleGoogleLogin = async () => {
     setError(null);
     setLoading(true);
+
     try {
-      await signInWithPopup(auth, provider);
-      onLogin();
-    } catch (err) {
-      setError('Google sign-in failed.');
-      console.error(err);
+      const provider = new GoogleAuthProvider();
+      // Optional: ensure full profile info is included
+      provider.addScope('profile');
+      provider.addScope('email');
+
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      console.log("✅ Google login successful:", {
+        uid: user.uid,
+        name: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL
+      });
+
+      // Store user profile in Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        name: user.displayName || "Unnamed User",
+        email: user.email || "No email",
+        photoURL: user.photoURL || null,
+        joinedAt: serverTimestamp()
+      }, { merge: true });
+
+      onLogin(); // let the app know user has signed in
+    } catch (err: any) {
+      console.error("❌ Google Sign-in Error:", err);
+      setError('Google sign-in failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -26,11 +50,11 @@ const Login = ({ onLogin }: LoginProps) => {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-white relative overflow-hidden">
-      <div className="bg-white/10 backdrop-blur-md border-black p-8 rounded-xl shadow-xl max-w-md w-full text-center text-white">
-        <h2 className="text-3xl text-black font-bold mb-6">Welcome to Aptly</h2>
+      <div className="bg-white/10 backdrop-blur-md border-black p-8 rounded-xl shadow-xl max-w-md w-full text-center text-black">
+        <h2 className="text-3xl font-bold mb-6">Welcome to Aptly</h2>
 
         {error && (
-          <div className="bg-red-500/20 border border-red-500 text-red-200 px-4 py-2 rounded mb-4 text-sm">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4 text-sm">
             {error}
           </div>
         )}

@@ -1,26 +1,16 @@
-import { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import Home from './pages/Home';
 import Login from './components/Login';
 import UserProfile from './components/UserProfile';
 import QueryHistoryList from './components/QueryHistoryList';
 import { QueryHistoryItem, saveQueryHistory, updateQueryConversation } from './utils/localQueryHistory';
-import { onAuthStateChanged, User, signOut } from 'firebase/auth';
-import { auth } from './firebase/config';
+import { useAuth, AuthProvider } from './context/AuthContext';
 
 function AppContent() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading, logout } = useAuth();
   const [selectedQuery, setSelectedQuery] = useState<QueryHistoryItem | null>(null);
   const [showHistory, setShowHistory] = useState(false);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
 
   const handleLoginSuccess = () => {
     setSelectedQuery(null);
@@ -28,13 +18,8 @@ function AppContent() {
   };
 
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      setUser(null);
-      handleLoginSuccess();
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
+    await logout();
+    handleLoginSuccess();
   };
 
   const handleSelectQuery = (query: QueryHistoryItem) => {
@@ -48,14 +33,11 @@ function AppContent() {
 
   const handleQuerySave = async (
     question: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     perspectives: any[],
     selectedPerspective: string | null = null,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     conversation: any[] = []
   ) => {
     if (!user) return null;
-
     try {
       const id = saveQueryHistory(
         user.uid,
@@ -74,11 +56,9 @@ function AppContent() {
   const handleUpdateConversation = async (
     queryId: string,
     selectedPerspective: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     conversation: any[]
   ) => {
     if (!user || !queryId) return;
-
     try {
       updateQueryConversation(
         queryId,
@@ -109,8 +89,7 @@ function AppContent() {
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">
       <div className="flex items-start mb-8 gap-4">
-        <UserProfile user={user} onLogout={handleLogout} />
-
+        <UserProfile onLogout={handleLogout} />
         <div className="flex-1 flex justify-end">
           <button
             onClick={handleToggleHistory}
@@ -118,9 +97,9 @@ function AppContent() {
           >
             {showHistory ? 'Hide History' : 'View History'}
           </button>
-
         </div>
       </div>
+
       {showHistory ? (
         <div className="mb-8">
           <QueryHistoryList onSelectQuery={handleSelectQuery} />
@@ -152,7 +131,11 @@ function AppContent() {
 }
 
 function App() {
-  return <AppContent />;
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
 }
 
 export default App;
