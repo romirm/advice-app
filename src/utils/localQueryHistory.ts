@@ -10,6 +10,7 @@ export interface QueryHistoryItem {
     advice: string;
   }[];
   conversation: Message[];
+  context?: Record<string, string>;
   createdAt: string;
 }
 
@@ -19,7 +20,8 @@ export const saveQueryHistory = (
   question: string,
   perspectives: any[],
   selectedPerspective: string | null = null,
-  conversation: Message[] = []
+  conversation: Message[] = [],
+  context: Record<string, string> = {}
 ): string => {
   // Get existing history
   const historyStr = localStorage.getItem('queryHistory') || '[]';
@@ -40,6 +42,7 @@ export const saveQueryHistory = (
     selectedPerspective,
     perspectives,
     conversation,
+    context, 
     createdAt: new Date().toISOString()
   };
   
@@ -61,7 +64,8 @@ export const saveQueryHistory = (
 export const updateQueryConversation = (
   queryId: string,
   selectedPerspective: string,
-  conversation: Message[]
+  conversation: Message[],
+  context?: Record<string, string>
 ): boolean => {
   // Get existing history
   const historyStr = localStorage.getItem('queryHistory') || '[]';
@@ -84,7 +88,13 @@ export const updateQueryConversation = (
   // Update the item
   history[index].selectedPerspective = selectedPerspective;
   history[index].conversation = conversation;
-  
+  // Update context if provided
+  if (context) {
+    history[index].context = { 
+      ...(history[index].context || {}), 
+      ...context 
+    };
+  }
   // Save to localStorage
   localStorage.setItem('queryHistory', JSON.stringify(history));
   
@@ -107,3 +117,38 @@ export const getUserQueryHistory = (userId: string): QueryHistoryItem[] => {
   // Filter by userId
   return history.filter(item => item.userId === userId);
 }; 
+
+// update just the context of a query
+export const updateQueryContext = (
+  queryId: string,
+  context: Record<string, string>
+): boolean => {
+  // Get existing history
+  const historyStr = localStorage.getItem('queryHistory') || '[]';
+  let history: QueryHistoryItem[] = [];
+  
+  try {
+    history = JSON.parse(historyStr);
+  } catch (err) {
+    console.error('Failed to parse query history', err);
+    return false;
+  }
+  
+  // Find and update item
+  const index = history.findIndex(item => item.id === queryId);
+  
+  if (index === -1) {
+    return false;
+  }
+  
+  // Update just the context
+  history[index].context = {
+    ...(history[index].context || {}),
+    ...context
+  };
+  
+  // Save to localStorage
+  localStorage.setItem('queryHistory', JSON.stringify(history));
+  
+  return true;
+};
