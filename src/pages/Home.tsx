@@ -36,7 +36,9 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
   const [isLoading, setIsLoading] = useState(false);
   const [userQuestion, setUserQuestion] = useState<string>("");
   const [queryId, setQueryId] = useState<string | null>(null);
-  const [displayedText, setDisplayedText] = useState<string | ReactNode>("");
+  const [displayedTitle, setDisplayedTitle] = useState<JSX.Element | string>("");
+  const [displayedSubtitle, setDisplayedSubtitle] = useState<string>("");
+
 
   // New states for information gathering
   const [userContext, setUserContext] = useState<Record<string, string>>({});
@@ -80,30 +82,51 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
   useEffect(() => {
     const plainText = "Welcome to ";
     const styledText = "Aptly!";
-    const fullText = plainText + styledText;
+    const colors = ["text-red-500", "text-orange-500", "text-yellow-500", "text-green-500", "text-blue-500", "text-purple-500"];
+    
     let i = 0;
     let interval: NodeJS.Timeout;
 
-    // eslint-disable-next-line prefer-const
     interval = setInterval(() => {
       if (i <= plainText.length) {
-        setDisplayedText(fullText.slice(0, i));
-      } else if (i <= fullText.length) {
-        setDisplayedText(
+        setDisplayedTitle(plainText.slice(0, i));
+      } else if (i <= plainText.length + styledText.length) {
+        const index = i - plainText.length;
+        const visibleStyled = styledText.slice(0, index);
+        const coloredLetters = visibleStyled.split("").map((char, idx) => (
+          <span key={idx} className={colors[idx % colors.length]}>
+            {char}
+          </span>
+        ));
+
+        setDisplayedTitle(
           <>
             {plainText}
-            <span className="text-indigo-600">{fullText.slice(plainText.length, i)}</span>
+            {coloredLetters}
           </>
         );
       } else {
         clearInterval(interval);
+        animateSubtitle(); // Start subtitle after title
       }
       i++;
     }, 80);
 
     return () => clearInterval(interval);
   }, []);
+  
+  const animateSubtitle = () => {
+    const subtitleText = "Discover advice from multiple perspectives.";
+    let j = 0;
 
+    const subtitleInterval = setInterval(() => {
+      setDisplayedSubtitle(subtitleText.slice(0, j));
+      if (j >= subtitleText.length) {
+        clearInterval(subtitleInterval);
+      }
+      j++;
+    }, 30);
+  };
   const handleInitialQuestion = async (message: string) => {
     setUserQuestion(message);
     setIsLoading(true);
@@ -170,7 +193,6 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
       setIsLoading(false);
     }
   };
-
   // Handle answering a follow-up question
   const handleFollowUpAnswer = async (answer: string) => {
     setIsLoading(true);
@@ -476,10 +498,10 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
     <div className="flex flex-col items-center justify-start min-h-screen px-4 py-12 text-center bg-transparent text-gray-900 dark:text-white transition-colors">
       <div className="w-full max-w-3xl">
         <h1 className="text-4xl font-bold h-16">
-          {displayedText}
+          {displayedTitle}
         </h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-2 text-lg">
-          Discover advice from multiple perspectives.
+        <p className="text-gray-500 dark:text-gray-400 mt-2 text-lg h-6">
+          {displayedSubtitle}
         </p>
 
         {mode === "multi" && !advice?.perspectives && (
