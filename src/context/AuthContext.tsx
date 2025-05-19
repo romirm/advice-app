@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -60,7 +60,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 1) Auth state listener
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (fbUser) => {
       setAuthUser(fbUser);
@@ -69,7 +68,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribeAuth();
   }, []);
 
-  // 2) Firestore profile listener with name fallback
   useEffect(() => {
     if (!authUser) {
       setUser(null);
@@ -109,7 +107,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribeProfile();
   }, [authUser]);
 
-  // Register
   const register = async (
     email: string,
     password: string,
@@ -133,7 +130,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Login
   const login = async (email: string, password: string) => {
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
@@ -149,7 +145,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Google login
   const loginWithGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider();
@@ -179,12 +174,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Logout
   const logout = async () => {
     await signOut(auth);
   };
 
-  // Upload profile pic
   const uploadProfilePicture = async (file: File) => {
     if (!user) return { error: 'Not logged in' };
     try {

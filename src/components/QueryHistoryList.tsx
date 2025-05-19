@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getUserQueryHistory } from '../utils/localQueryHistory';
 import { QueryHistoryItem } from '../utils/localQueryHistory';
+import { useAuth } from '../context/AuthContext';
 
 interface QueryHistoryListProps {
   onSelectQuery: (query: QueryHistoryItem) => void;

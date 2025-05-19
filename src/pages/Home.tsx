@@ -1,4 +1,4 @@
-import { useState, useEffect, ReactNode } from "react";
+import { useState, useEffect } from "react";
 import InputBox from "../components/InputBox";
 import { getAdvice, getContinuedAdvice, Message, assessInformationNeeds } from "../gemini/GeminiFunctions";
 import { QueryHistoryItem } from "../utils/localQueryHistory";
@@ -83,7 +83,7 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
     const plainText = "Welcome to ";
     const styledText = "Aptly!";
     const colors = ["text-red-500", "text-orange-500", "text-yellow-500", "text-green-500", "text-blue-500", "text-purple-500"];
-    
+
     let i = 0;
     let interval: NodeJS.Timeout;
 
@@ -114,7 +114,7 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
 
     return () => clearInterval(interval);
   }, []);
-  
+
   const animateSubtitle = () => {
     const subtitleText = "Discover advice from multiple perspectives.";
     let j = 0;
@@ -132,13 +132,13 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
     setIsLoading(true);
     console.log("=== Initial Question ===");
     console.log("Question:", message);
-    
+
     try {
       // Check if we need more information
       console.log("Assessing information needs...");
       const assessment = await assessInformationNeeds(message);
       console.log("Initial assessment result:", assessment);
-      
+
       if (assessment.hasEnoughInfo) {
         // If we have enough info, proceed to advice generation
         console.log("Information assessment: Enough information to proceed directly to advice");
@@ -153,26 +153,26 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
         // If we need more info, start the gathering phase
         console.log("Information assessment: Need more information");
         console.log("Follow-up questions:", assessment.followUpQuestions);
-        
+
         setMode("gathering");
         setFollowUpQuestions(assessment.followUpQuestions || []);
         setCurrentQuestionIndex(0);
         setInfoAssessmentReasoning(assessment.reasoning || "");
-        
+
         // Add the initial question to the gathering history
         // Create separate bubbles for explanation and question
         const initialHistory = [
           { role: "user" as const, content: message },
-          { 
-            role: "ai" as const, 
-            content: `I'd like to understand your situation better to provide the most relevant advice. ${assessment.reasoning}` 
+          {
+            role: "ai" as const,
+            content: `I'd like to understand your situation better to provide the most relevant advice. ${assessment.reasoning}`
           },
           {
             role: "ai" as const,
             content: assessment.followUpQuestions?.[0] || "What additional information can you provide?"
           }
         ];
-        
+
         setGatheringHistory(initialHistory);
       }
     } catch (error) {
@@ -196,7 +196,7 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
   // Handle answering a follow-up question
   const handleFollowUpAnswer = async (answer: string) => {
     setIsLoading(true);
-    
+
     // Store the answer in context
     const currentQuestion = followUpQuestions[currentQuestionIndex];
     const updatedContext = {
@@ -208,13 +208,13 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
     console.log("Added answer to context:", { question: currentQuestion, answer });
     console.log("Updated context:", updatedContext);
     console.log("Context entries count:", Object.keys(updatedContext).length);
-  
+
     // Update gathering history
     const updatedHistory = [
       ...gatheringHistory,
       { role: "user" as const, content: answer }
     ];
-    
+
     // Check if we have more questions
     if (currentQuestionIndex < followUpQuestions.length - 1) {
       // Move to next question
@@ -225,7 +225,7 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
         role: "ai" as const,
         content: nextQuestion
       });
-      
+
       setGatheringHistory(updatedHistory);
       setCurrentQuestionIndex(nextIndex);
       setIsLoading(false);
@@ -233,142 +233,142 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
       // We've collected all the information, now generate advice
       try {
         // Set a maximum of 5 context entries to prevent endless loops
-      if (Object.keys(updatedContext).length >= 5) {
-        console.log("Maximum context entries (5) reached, forcing proceed to advice");
-        const result = await getAdvice(userQuestion, updatedContext);
-        setAdvice(result);
-        setMode("multi");
-        
-        if (onSaveQuery) {
-          const newQueryId = await onSaveQuery(
-            userQuestion, 
-            result.perspectives, 
-            null, 
-            undefined, 
-            updatedContext
-          );
-          setQueryId(newQueryId || null);
-        }
-      } else {
-        // Final assessment to see if we need even more information
-        console.log("Running final information needs assessment");
-        const finalAssessment = await assessInformationNeeds(userQuestion, updatedContext);
-        
-        console.log("Final assessment result:", finalAssessment);
-        
-        // Force proceed to advice if we've already collected at least 2 pieces of information
-        const contextSize = Object.keys(updatedContext).length;
-        if (finalAssessment.hasEnoughInfo || contextSize >= 2) {
-          console.log(`Proceeding to advice: hasEnoughInfo=${finalAssessment.hasEnoughInfo}, contextSize=${contextSize}`);
-          
-          // Generate advice with the context we've gathered
+        if (Object.keys(updatedContext).length >= 5) {
+          console.log("Maximum context entries (5) reached, forcing proceed to advice");
           const result = await getAdvice(userQuestion, updatedContext);
           setAdvice(result);
           setMode("multi");
-          
+
           if (onSaveQuery) {
             const newQueryId = await onSaveQuery(
-              userQuestion, 
-              result.perspectives, 
-              null, 
-              undefined, 
+              userQuestion,
+              result.perspectives,
+              null,
+              undefined,
               updatedContext
             );
             setQueryId(newQueryId || null);
           }
         } else {
-          // We need even more information, but with a lower threshold
-          // Limit to max 1 more question
-          console.log("Need more information, but limiting to 1 more question");
-          const limitedQuestions = (finalAssessment.followUpQuestions || []).slice(0, 1);
-          
-          console.log("Limited follow-up questions:", limitedQuestions);
-          
-          setFollowUpQuestions(limitedQuestions);
-          setCurrentQuestionIndex(0);
-          setInfoAssessmentReasoning(finalAssessment.reasoning || "");
-          
-          if (finalAssessment.reasoning) {
+          // Final assessment to see if we need even more information
+          console.log("Running final information needs assessment");
+          const finalAssessment = await assessInformationNeeds(userQuestion, updatedContext);
+
+          console.log("Final assessment result:", finalAssessment);
+
+          // Force proceed to advice if we've already collected at least 2 pieces of information
+          const contextSize = Object.keys(updatedContext).length;
+          if (finalAssessment.hasEnoughInfo || contextSize >= 2) {
+            console.log(`Proceeding to advice: hasEnoughInfo=${finalAssessment.hasEnoughInfo}, contextSize=${contextSize}`);
+
+            // Generate advice with the context we've gathered
+            const result = await getAdvice(userQuestion, updatedContext);
+            setAdvice(result);
+            setMode("multi");
+
+            if (onSaveQuery) {
+              const newQueryId = await onSaveQuery(
+                userQuestion,
+                result.perspectives,
+                null,
+                undefined,
+                updatedContext
+              );
+              setQueryId(newQueryId || null);
+            }
+          } else {
+            // We need even more information, but with a lower threshold
+            // Limit to max 1 more question
+            console.log("Need more information, but limiting to 1 more question");
+            const limitedQuestions = (finalAssessment.followUpQuestions || []).slice(0, 1);
+
+            console.log("Limited follow-up questions:", limitedQuestions);
+
+            setFollowUpQuestions(limitedQuestions);
+            setCurrentQuestionIndex(0);
+            setInfoAssessmentReasoning(finalAssessment.reasoning || "");
+
+            if (finalAssessment.reasoning) {
+              updatedHistory.push({
+                role: "ai" as const,
+                content: `I need a bit more information. ${finalAssessment.reasoning}`
+              });
+            }
+
             updatedHistory.push({
               role: "ai" as const,
-              content: `I need a bit more information. ${finalAssessment.reasoning}`
+              content: limitedQuestions[0] || "Is there anything else important about your situation?"
             });
+
+            setGatheringHistory(updatedHistory);
           }
-          
+        }
+      } catch (error) {
+        console.error("Error generating advice after info gathering:", error);
+        // In case of error, proceed to advice generation anyway with what we have
+        try {
+          console.log("Error in follow-up assessment, proceeding to advice with current context");
+          const result = await getAdvice(userQuestion, updatedContext);
+          setAdvice(result);
+          setMode("multi");
+
+          if (onSaveQuery) {
+            const newQueryId = await onSaveQuery(
+              userQuestion,
+              result.perspectives,
+              null,
+              undefined,
+              updatedContext
+            );
+            setQueryId(newQueryId || null);
+          }
+        } catch (secondError) {
+          console.error("Second error trying to generate advice:", secondError);
           updatedHistory.push({
             role: "ai" as const,
-            content: limitedQuestions[0] || "Is there anything else important about your situation?"
+            content: "I'm having trouble processing this information. Let's try a different approach."
           });
-          
           setGatheringHistory(updatedHistory);
+          setMode("multi");
+        } finally {
+          setIsLoading(false);
         }
-      }
-    } catch (error) {
-      console.error("Error generating advice after info gathering:", error);
-      // In case of error, proceed to advice generation anyway with what we have
-      try {
-        console.log("Error in follow-up assessment, proceeding to advice with current context");
-        const result = await getAdvice(userQuestion, updatedContext);
-        setAdvice(result);
-        setMode("multi");
-        
-        if (onSaveQuery) {
-          const newQueryId = await onSaveQuery(
-            userQuestion, 
-            result.perspectives, 
-            null, 
-            undefined, 
-            updatedContext
-          );
-          setQueryId(newQueryId || null);
-        }
-      } catch (secondError) {
-        console.error("Second error trying to generate advice:", secondError);
-        updatedHistory.push({
-          role: "ai" as const,
-          content: "I'm having trouble processing this information. Let's try a different approach."
-        });
-        setGatheringHistory(updatedHistory);
-        setMode("multi");
       } finally {
         setIsLoading(false);
       }
-    } finally {
-      setIsLoading(false);
     }
-  }
-};
+  };
 
   const logContextUpdate = (context: Record<string, string>, label = "Context Update") => {
     console.log(`=== ${label} ===`);
     console.log("Context entries:", Object.keys(context).length);
     console.log("Context data:", context);
-    
+
     // Create a formatted string for better visibility in console
     const formattedContext = Object.entries(context)
       .map(([key, value], index) => `  ${index + 1}. "${key}": "${value}"`)
       .join("\n");
-    
+
     console.log("Formatted context:\n" + formattedContext);
   };
 
-// Add this to handleSkipGathering
+  // Add this to handleSkipGathering
   const handleSkipGathering = async () => {
     setIsLoading(true);
     logContextUpdate(userContext, "Skipping to Advice with Context");
-    
+
     try {
       const result = await getAdvice(userQuestion, userContext);
       console.log("Skip to advice - generated result:", result);
       setAdvice(result);
       setMode("multi");
-      
+
       if (onSaveQuery) {
         const newQueryId = await onSaveQuery(
-          userQuestion, 
-          result.perspectives, 
-          null, 
-          undefined, 
+          userQuestion,
+          result.perspectives,
+          null,
+          undefined,
           userContext
         );
         setQueryId(newQueryId || null);
@@ -386,9 +386,9 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
     setCurrentQuestionIndex(0);
     setGatheringHistory([
       { role: "user" as const, content: userQuestion },
-      { 
-        role: "ai" as const, 
-        content: `I'd like to understand your situation better. ${infoAssessmentReasoning}` 
+      {
+        role: "ai" as const,
+        content: `I'd like to understand your situation better. ${infoAssessmentReasoning}`
       },
       {
         role: "ai" as const,
@@ -453,10 +453,10 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
     return (
       <div key={idx} className={`my-4 ${msg.role === "user" ? "ml-auto" : "mr-auto"}`}>
         <div className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-          <div 
+          <div
             className={`max-w-[80%] rounded-2xl p-4 
-              ${msg.role === "user" 
-                ? "bg-black text-white dark:bg-white dark:text-black" 
+              ${msg.role === "user"
+                ? "bg-black text-white dark:bg-white dark:text-black"
                 : `bg-gray-100 dark:bg-neutral-800 text-black dark:text-white ${perspective ? `border-l-4 ${getPerspectiveBorderColor(perspective)}` : ""}`
               }`
             }
@@ -539,7 +539,7 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
 
             <div className="bg-transparent rounded-lg mb-6 min-h-[300px] max-h-[500px] overflow-y-auto">
               {gatheringHistory.map((msg, idx) => renderChatMessage(msg, idx))}
-              
+
               {isLoading && (
                 <div className="flex justify-start my-4">
                   <div className="bg-gray-100 dark:bg-neutral-800 rounded-2xl p-4 text-black dark:text-white max-w-[80%]">
@@ -554,11 +554,11 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
             </div>
 
             <div className="relative">
-              <InputBox 
-                onSend={handleFollowUpAnswer} 
+              <InputBox
+                onSend={handleFollowUpAnswer}
                 placeholder="Type your answer here..."
               />
-              
+
               <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 text-left">
                 <p>Question {currentQuestionIndex + 1} of {followUpQuestions.length}</p>
               </div>
@@ -620,7 +620,7 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-left">
               Advice from Different Perspectives
             </h2>
-            
+
             {Object.keys(userContext).length > 0 && (
               <div className="mb-6 p-5 bg-gray-50 dark:bg-gray-800 rounded-lg text-left border border-gray-200 dark:border-gray-700">
                 <h3 className="text-lg font-semibold mb-3">Your Information</h3>
@@ -634,7 +634,7 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
                 </ul>
               </div>
             )}
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {advice.perspectives.map((perspectiveObj) => (
                 <div
@@ -652,11 +652,11 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
                   <div className="mt-5 text-right">
                     <button
                       className={`px-4 py-2 rounded-lg text-sm font-medium 
-                        ${perspectiveObj.name === "Logical" 
-                          ? "bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-100 dark:hover:bg-blue-800" 
+                        ${perspectiveObj.name === "Logical"
+                          ? "bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-100 dark:hover:bg-blue-800"
                           : perspectiveObj.name === "Empathetic"
-                          ? "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-100 dark:hover:bg-red-800"
-                          : "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-100 dark:hover:bg-green-800"
+                            ? "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-100 dark:hover:bg-red-800"
+                            : "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-100 dark:hover:bg-green-800"
                         }`
                       }
                       onClick={() => handleSelectPerspective(perspectiveObj)}
