@@ -496,7 +496,7 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen px-4 py-12 text-center bg-transparent text-gray-900 dark:text-white transition-colors">
-      <div className="w-full max-w-3xl">
+      <div className="w-full px-6">
         <h1 className="text-4xl font-bold h-16">
           {displayedTitle}
         </h1>
@@ -635,7 +635,7 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="flex flex-row gap-6 overflow-x-auto pb-4">
               {advice.perspectives.map((perspectiveObj) => (
                 <div
                   key={perspectiveObj.name}
