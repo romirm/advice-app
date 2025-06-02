@@ -20,7 +20,7 @@ export async function assessInformationNeeds(
   const contextString = Object.entries(currentContext)
     .map(([key, value]) => `${key}: ${value}`)
     .join("\n");
-  
+
   console.log("Current context being assessed:", currentContext);
   console.log("Context entries count:", Object.keys(currentContext).length);
 
@@ -95,7 +95,7 @@ export async function getAdvice(problem: string, context: Record<string, string>
   const contextString = Object.entries(context)
     .map(([key, value]) => `${key}: ${value}`)
     .join("\n");
-  
+
   console.log("=== Getting Advice ===");
   console.log("Problem:", problem);
   console.log("contextString:", contextString);
@@ -108,19 +108,20 @@ export async function getAdvice(problem: string, context: Record<string, string>
   and then generate advice that reflects their unique background, priorities, and relationship to the person experiencing the problem.
   Return your response as **pure JSON** in the exact format below.
   Do not include any markdown, code fences, or additional explanation.
-  
+  Only include the role or relationship (If you choose Legal Counsel for example don't name it Legal Counsel perspective only Legal Counsel as the name)
+
   {
   "perspectives": [
     {
-      "name": "<Perspective 1 Name> (<Role or Relationship>)",
+      "name": "<Role or Relationship>",
       "advice": "..."
     },
     {
-      "name": "<Perspective 2 Name> (<Role or Relationship>)",
+      "name": "<Role or Relationship>",
       "advice": "..."
     },
     {
-      "name": "<Perspective 3 Name> (<Role or Relationship>)",
+      "name": "<Role or Relationship>",
       "advice": "..."
     }
   ]
@@ -153,31 +154,31 @@ export async function getAdvice(problem: string, context: Record<string, string>
 
 
 export async function getContinuedAdvice(
-  perspective: string, 
-  history: Message[], 
+  perspective: string,
+  history: Message[],
   message: string
 ): Promise<string> {
-  const contextMessages = history.map(msg => 
+  const contextMessages = history.map(msg =>
     `${msg.role === "user" ? "User" : "AI"}: ${msg.content}`
   ).join("\n");
-  
+
   const perspectiveTraits = {
     "Logical": "analytical, rational, factual, objective, evidence-based, systematic thinking",
     "Empathetic": "compassionate, understanding, emotional, supportive, caring, relationship-focused",
     "Strategic": "goal-oriented, future-focused, practical, tactical, resource-aware, opportunity-seeking"
   };
 
-  const traitDescription = perspectiveTraits[perspective as keyof typeof perspectiveTraits] || 
+  const traitDescription = perspectiveTraits[perspective as keyof typeof perspectiveTraits] ||
     "balanced, thoughtful, and helpful";
 
   const prompt = `
   You are an advisor with a ${perspective} perspective. Your responses should be ${traitDescription}.
   
-  ${perspective === "Logical" ? 
-    "Focus on facts, logic, and objective analysis. Identify patterns and cause-effect relationships." : 
-    perspective === "Empathetic" ? 
-    "Focus on emotions, relationships, and personal well-being. Consider how the situation affects feelings." :
-    "Focus on long-term goals, optimal approaches, and strategic planning. Consider different pathways to success."}
+  ${perspective === "Logical" ?
+      "Focus on facts, logic, and objective analysis. Identify patterns and cause-effect relationships." :
+      perspective === "Empathetic" ?
+        "Focus on emotions, relationships, and personal well-being. Consider how the situation affects feelings." :
+        "Focus on long-term goals, optimal approaches, and strategic planning. Consider different pathways to success."}
   
   Previous conversation:
   ${contextMessages}

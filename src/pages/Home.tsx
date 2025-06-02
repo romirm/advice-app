@@ -569,7 +569,7 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
           <div className="mt-8">
             <div className="flex justify-between items-center mb-4">
               <span className={`font-semibold text-xl ${getPerspectiveColor(selectedPerspective || '')}`}>
-                {selectedPerspective} Perspective
+                {selectedPerspective}
               </span>
               <button
                 className="px-3 py-1 text-sm bg-transparent hover:bg-gray-200 dark:hover:bg-gray-600 rounded border border-gray-300 dark:border-gray-500"
@@ -643,7 +643,7 @@ const Home = ({ initialQuery = null, onSaveQuery, onUpdateConversation }: HomePr
                 >
                   <div>
                     <h3 className={`text-lg font-semibold mb-3 ${getPerspectiveColor(perspectiveObj.name)}`}>
-                      {perspectiveObj.name} Perspective
+                      {perspectiveObj.name}
                     </h3>
                     <p className="text-gray-700 dark:text-gray-300 text-left">
                       {perspectiveObj.advice}
