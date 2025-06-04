@@ -1,5 +1,5 @@
 # Aptly ✨  
-A simple web app that uses Google's Gemini API to generate advice from Logical, Empathetic, and Strategic perspectives.
+A simple web app that uses Google's Gemini API to help users resolve interpersonal conflicts by generating advice from multiple, diverse perspectives.
 
 ## 🚧 Built With
 
