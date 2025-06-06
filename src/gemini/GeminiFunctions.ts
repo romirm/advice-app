@@ -39,33 +39,38 @@ export async function assessInformationNeeds(
   Current context:
   ${contextString || "No additional context provided yet."}
   
-  Determine if there is enough information to provide meaningful advice on this question.
-  Consider what important contextual information is missing that would significantly improve the quality of advice.
-  
-  IMPORTANT: If you already have some basic information or the question is straightforward, lean towards saying there is enough info.
-  Only ask for more information if it's absolutely critical to providing relevant advice.
+  Your task is to determine if you have enough information to provide highly relevant, actionable advice for this user's specific situation, especially for interpersonal or relationship conflicts.
+
+  If not, generate 1-5 follow-up questions that are as specific, concrete, and context-aware as possible. For each question:
+
+  - Directly reference specific people, actions, events, or phrases from the user's input or context. Use the user's own words or details in your questions.
+  - Ask about concrete actions, motivations, intentions, outcomes, or emotional reactions. For example: "When you mentioned [specific event], what did you do next?" or "How did [person] respond when you said [specific phrase]?"
+  - If possible, hypothesize about missing details or likely scenarios based on the context, and ask clarifying questions about them.
+  - Cover different angles: what the user has already tried, what the other party did, what outcome the user wants, and what obstacles exist.
+  - Avoid any vague, generic, or repetitive questions. Do not ask for demographic/background info unless it is essential.
+  - Each question must be unique, non-repetitive, and help uncover the most important missing information for tailored advice.
+
+  IMPORTANT: Your goal is to act like a professional advisor, drilling down into the user's real-life context. The questions should help you get to the heart of the issue as quickly and specifically as possible, using the user's own words and details, and always tailoring it towards resolving interpersonal conflicts.
   
   Return your response as **pure JSON** in the exact format below:
-  
   {
     "hasEnoughInfo": false,
     "followUpQuestions": [
-      "What is your age?",
-      "What are your career interests?",
-      "What is your financial situation?"
+      "Example: What is the main source of disagreement or tension between you and the other person?",
+      "Example: How have you and the other party tried to resolve this so far?",
+      "Example: What outcome would you ideally like to see in this relationship?"
     ],
-    "reasoning": "Explanation of why this information is needed to provide good advice"
+    "reasoning": "Explanation of why these specific details are needed to provide tailored advice for resolving interpersonal conflict."
   }
   
   OR, if there's already enough information:
-  
   {
     "hasEnoughInfo": true,
-    "reasoning": "Explanation of why the current information is sufficient"
+    "reasoning": "Explanation of why the current information is sufficient."
   }
   
-  Limit follow-up questions to 2-5 of the MOST important missing pieces of information.
-  Make sure the follow-up questions are specific and directly related to the user's situation.
+  Limit follow-up questions to 1-5 of the most important, context-specific missing pieces of information, but do not generate unnecessary questions.
+  Make sure the follow-up questions are highly tailored to the user's unique situation and problem, with a focus on interpersonal or relationship issues if applicable.
   `;
 
   try {
@@ -102,10 +107,10 @@ export async function getAdvice(problem: string, context: Record<string, string>
   const prompt = `
   Given the following situation: "${problem}".
   Additional context: ${contextString || "No additional context provided."}
-  Generate three distinct pieces of advice, each from a personalized and relevant perspective suited to the context. Keep each of them around 2-3 sentences and the same length, fairly high-level but still reflecting the unique advice from that perspective.
+  Generate three distinct pieces of advice, each from a personalized and relevant perspective suited to the context. If the situation involves interpersonal or relationship conflict, prioritize advice that helps the user understand, navigate, and resolve these conflicts. Keep each of them around 2-3 sentences and the same length, fairly high-level but still reflecting the unique advice from that perspective.
   Your task is to first infer what roles or people would naturally have differing views on this situation 
-  (e.g., a close friend, a professional expert, a family member), exclude religious or spiritual viewpoints unless they are explicitly relevant based on the problem description.
-  and then generate advice that reflects their unique background, priorities, and relationship to the person experiencing the problem.
+  (e.g., a close friend, a professional expert, a family member, or a mediator), exclude religious or spiritual viewpoints unless they are explicitly relevant based on the problem description.
+  and then generate advice that reflects their unique background, priorities, and relationship to the person experiencing the problem, with a focus on resolving interpersonal issues if relevant.
   Return your response as **pure JSON** in the exact format below.
   Do not include any markdown, code fences, or additional explanation.
   Only include the role or relationship (If you choose Legal Counsel for example don't name it Legal Counsel perspective only Legal Counsel as the name)
